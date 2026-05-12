@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Pachong · 智能爬虫控制台</title>
+<style>
+/* ========== Apple 设计令牌 ========== */
+:root {
+  --primary: #0066cc;
+  --primary-focus: #0071e3;
+  --primary-on-dark: #2997ff;
+  --ink: #1d1d1f;
+  --body: #1d1d1f;
+  --body-on-dark: #ffffff;
+  --body-muted: #cccccc;
+  --ink-muted-80: #333333;
+  --ink-muted-48: #7a7a7a;
+  --divider-soft: #f0f0f0;
+  --hairline: #e0e0e0;
+  --canvas: #ffffff;
+  --canvas-parchment: #f5f5f7;
+  --surface-pearl: #fafafc;
+  --surface-tile-1: #272729;
+  --surface-black: #000000;
+  --surface-chip-translucent: rgba(210,210,215,0.64);
+  --on-primary: #ffffff;
+  --on-dark: #ffffff;
+  --green: #34c759;
+  --red: #ff3b30;
+  --orange: #ff9500;
+  --yellow: #ffcc00;
+
+  --font-display: "SF Pro Display",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-text: "SF Pro Text",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-mono: "SF Mono",Consolas,monospace;
+
+  --spacing-xxs: 4px; --spacing-xs: 8px; --spacing-sm: 12px;
+  --spacing-md: 17px; --spacing-lg: 24px; --spacing-xl: 32px;
+  --spacing-xxl: 48px; --spacing-section: 80px;
+
+  --rounded-xs: 5px; --rounded-sm: 8px; --rounded-md: 11px;
+  --rounded-lg: 18px; --rounded-pill: 9999px;
+
+  --shadow-sm: 0px 2px 8px rgba(0,0,0,0.08);
+  --shadow-md: 0px 5px 30px rgba(0,0,0,0.22);
+  --transition: all 0.2s cubic-bezier(0.25,0.1,0.25,1);
+}
+
+body.dark {
+  --ink: #f5f5f7; --body: #f5f5f7; --body-on-dark: #1d1d1f;
+  --canvas: #1d1d1f; --canvas-parchment: #000000;
+  --surface-pearl: #2d2d2f; --hairline: #424245;
+  --divider-soft: #2d2d2f; --body-muted: #6e6e73;
+  --ink-muted-80: #a1a1a6; --ink-muted-48: #6e6e73;
+  --surface-chip-translucent: rgba(110,110,115,0.44);
+  --shadow-sm: 0px 2px 8px rgba(0,0,0,0.3);
+  --shadow-md: 0px 5px 30px rgba(0,0,0,0.5);
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:var(--font-text);background:var(--canvas-parchment);
+  color:var(--body);font-size:17px;line-height:1.47;letter-spacing:-0.022em;
+  -webkit-font-smoothing:antialiased;min-height:100vh
+}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+button,.btn{font-family:inherit;cursor:pointer;border:none;background:none;transition:var(--transition)}
+button:active{transform:scale(0.97)}
+
+/* ── Global Nav ── */
+.global-nav{
+  background:var(--surface-black);height:44px;display:flex;align-items:center;
+  justify-content:space-between;padding:0 var(--spacing-xl);color:var(--on-dark);
+  font-size:12px;letter-spacing:-0.01em
+}
+.global-nav a{color:var(--body-muted)}
+.global-nav a:hover{color:var(--on-dark);text-decoration:none}
+.nav-links,.nav-right{display:flex;gap:20px;align-items:center}
+.nav-right{font-size:11px}
+
+/* ── Sub Nav (frosted) ── */
+.sub-nav{
+  background:rgba(245,245,247,0.8);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  height:52px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--spacing-xl);border-bottom:1px solid rgba(0,0,0,0.06);
+  position:sticky;top:0;z-index:20
+}
+body.dark .sub-nav{background:rgba(29,29,31,0.8);border-bottom:1px solid rgba(255,255,255,0.06)}
+.sub-nav .page-title{
+  font-family:var(--font-display);font-size:21px;font-weight:600;letter-spacing:0.011em
+}
+.sub-actions{display:flex;gap:12px;align-items:center}
+
+/* ── Buttons ── */
+.btn-primary{
+  background:var(--primary);color:var(--on-primary);padding:9px 20px;
+  border-radius:var(--rounded-pill);font-size:14px;font-weight:500;
+  display:inline-flex;align-items:center;gap:6px;letter-spacing:-0.01em
+}
+.btn-primary:hover{background:var(--primary-focus)}
+.btn-ghost{
+  background:transparent;color:var(--primary);border:1px solid var(--primary);
+  padding:8px 18px;border-radius:var(--rounded-pill);font-size:13px;font-weight:400
+}
+.btn-ghost:hover{background:rgba(0,102,204,0.06)}
+.btn-ghost-sm{padding:5px 14px;font-size:12px}
+.btn-danger{color:var(--red);border-color:var(--red)}
+.btn-danger:hover{background:rgba(255,59,48,0.06)}
+
+/* ── Mode Toggle ── */
+.mode-switch{display:flex;background:var(--surface-chip-translucent);border-radius:var(--rounded-pill);overflow:hidden}
+.mode-switch button{padding:4px 14px;font-size:12px;font-weight:500;color:var(--body);border-radius:var(--rounded-pill)}
+.mode-switch button.active{background:var(--canvas);box-shadow:var(--shadow-sm)}
+
+/* ── Tab Bar ── */
+.tab-bar{display:flex;gap:0;padding:0 32px;border-bottom:1px solid var(--hairline);background:var(--canvas)}
+body.dark .tab-bar{background:var(--canvas)}
+.tab-btn{padding:12px 20px;font-size:14px;font-weight:500;color:var(--ink-muted-48);
+  border-bottom:2px solid transparent;transition:var(--transition)}
+.tab-btn.active,.tab-btn:hover{color:var(--primary)}
+.tab-btn.active{border-bottom-color:var(--primary)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── Page Layout ── */
+.page-content{padding:var(--spacing-xl);max-width:1440px;margin:0 auto}
+
+/* ── Cards ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--spacing-lg);margin-bottom:var(--spacing-lg)}
+.stat-card{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--rounded-lg);
+  padding:var(--spacing-lg)}
+.stat-card .stat-label{font-size:12px;color:var(--ink-muted-48);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px}
+.stat-card .stat-value{font-family:var(--font-display);font-size:32px;font-weight:600;line-height:1.1}
+.stat-card .stat-sub{font-size:13px;color:var(--ink-muted-48);margin-top:4px}
+
+.task-card{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--rounded-lg);
+  padding:var(--spacing-lg);transition:var(--transition)}
+.task-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.task-card .card-url{font-family:var(--font-display);font-size:16px;font-weight:600;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:10px}
+.task-card .card-meta{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--ink-muted-48);margin-bottom:10px;flex-wrap:wrap}
+.task-card .card-result{font-size:13px;color:var(--ink-muted-80);border-top:1px solid var(--divider-soft);padding-top:12px;margin-top:12px}
+.task-card .card-actions{display:flex;gap:8px;margin-top:12px}
+
+/* ── Badges ── */
+.badge{display:inline-block;padding:3px 10px;border-radius:var(--rounded-pill);
+  font-size:11px;font-weight:600;letter-spacing:0.01em}
+.badge-pending{background:rgba(255,204,0,0.15);color:#b38a00}
+.badge-running{background:rgba(0,102,204,0.12);color:var(--primary)}
+.badge-success{background:rgba(52,199,89,0.15);color:#248a3d}
+.badge-failed{background:rgba(255,59,48,0.12);color:#c41e16}
+.badge-hint{background:rgba(255,59,48,0.08);color:var(--red);font-size:10px}
+
+.speed-badge{font-size:11px;padding:2px 8px;border-radius:var(--rounded-xs);font-weight:500}
+.speed-fast{background:rgba(52,199,89,0.1);color:#248a3d}
+.speed-ok{background:rgba(0,102,204,0.1);color:var(--primary)}
+.speed-slow{background:rgba(255,149,0,0.1);color:#c46e00}
+.speed-bad{background:rgba(255,59,48,0.1);color:#c41e16}
+
+/* ── Forms ── */
+.search-input{
+  background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--rounded-pill);
+  padding:11px 18px;height:44px;width:100%;font-size:16px;font-family:var(--font-text);
+  color:var(--body);outline:none;transition:var(--transition)
+}
+.search-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,102,204,0.15)}
+textarea.search-input{height:auto;min-height:120px;border-radius:var(--rounded-lg);resize:vertical;line-height:1.6;padding:14px 18px}
+select.search-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a7a7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+
+/* ── Form Card ── */
+.form-card{background:var(--canvas);border:1px solid var(--hairline);
+  border-radius:var(--rounded-lg);padding:var(--spacing-xl);margin-bottom:var(--spacing-lg)}
+.form-card h3{font-family:var(--font-display);font-size:17px;font-weight:600;margin-bottom:14px;letter-spacing:-0.01em}
+.form-row{display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+
+/* ── Progress ── */
+.progress-wrap{margin-top:10px}
+.progress-bar{height:4px;background:var(--divider-soft);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--primary);border-radius:2px;transition:width 0.6s cubic-bezier(0.25,0.1,0.25,1)}
+.batch-bar{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--canvas);
+  border:1px solid var(--hairline);border-radius:var(--rounded-md);margin-bottom:14px;font-size:13px}
+.batch-bar .progress-wrap{flex:1}
+
+/* ── Table ── */
+.tbl-wrap{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--rounded-lg);overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;padding:10px 16px;color:var(--ink-muted-48);font-size:11px;text-transform:uppercase;
+  letter-spacing:0.04em;font-weight:600;border-bottom:1px solid var(--hairline);background:var(--surface-pearl)}
+td{padding:10px 16px;border-bottom:1px solid var(--divider-soft);color:var(--body)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface-pearl)}
+.mono{font-family:var(--font-mono);font-size:11px}
+.url-td{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+
+/* ── Empty ── */
+.empty-state{text-align:center;padding:64px 20px;color:var(--ink-muted-48);grid-column:1/-1}
+.empty-state .icon{font-size:40px;margin-bottom:12px;opacity:0.4}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 22px;border-radius:var(--rounded-pill);
+  font-size:14px;font-weight:500;z-index:200;animation:slideIn 0.3s cubic-bezier(0.25,0.1,0.25,1);
+  box-shadow:var(--shadow-md);max-width:380px}
+.toast-ok{background:var(--surface-black);color:var(--on-dark)}
+.toast-err{background:var(--red);color:#fff}
+@keyframes slideIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:var(--canvas);border:1px solid var(--hairline);border-radius:var(--rounded-lg);
+  padding:var(--spacing-xl);width:94%;max-width:750px;max-height:80vh;overflow-y:auto}
+.modal h3{font-family:var(--font-display);font-weight:600;margin-bottom:16px;display:flex;justify-content:space-between}
+.modal-close{font-size:20px;cursor:pointer;color:var(--ink-muted-48)}
+.json-v{background:var(--canvas-parchment);border:1px solid var(--hairline);border-radius:var(--rounded-md);
+  padding:16px;font-family:var(--font-mono);font-size:12px;white-space:pre-wrap;max-height:420px;overflow:auto;line-height:1.5}
+
+/* ── Footer ── */
+.footer{padding:48px 32px;text-align:center;font-size:12px;color:var(--ink-muted-48);border-top:1px solid var(--divider-soft)}
+
+/* ── Responsive ── */
+@media(max-width:834px){
+  .global-nav .nav-links{display:none}
+  .sub-nav{padding:0 20px}
+  .card-grid{grid-template-columns:1fr;padding:0}
+  .page-content{padding:20px}
+  .form-row{flex-direction:column}
+}
+
+/* ── Back to top ── */
+.back-top{position:fixed;bottom:80px;right:24px;width:40px;height:40px;
+  border-radius:50%;background:var(--canvas);border:1px solid var(--hairline);
+  display:grid;place-items:center;cursor:pointer;box-shadow:var(--shadow-sm);z-index:50;opacity:0;transition:opacity 0.3s}
+.back-top.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- ── Global Nav ── -->
+<div class="global-nav">
+  <div class="nav-links">
+    <a href="/" style="color:var(--on-dark);font-weight:600">Pachong Crawler</a>
+    <a href="/docs">API</a>
+  </div>
+  <div class="nav-right">
+    <button style="color:var(--body-muted);font-size:12px" onclick="toggleTheme()" id="themeLabel">浅色</button>
+  </div>
+</div>
+
+<!-- ── Sub Nav ── -->
+<div class="sub-nav">
+  <div class="page-title" id="pageTitle">仪表板</div>
+  <div class="sub-actions">
+    <div class="mode-switch"><button onclick="setMode('fast')" class="active">快速</button><button onclick="setMode('deep')">深度</button></div>
+    <button class="btn-primary" id="newTaskBtn" onclick="switchTab('submit')">+ 新建抓取</button>
+  </div>
+</div>
+
+<!-- ── Tab Bar ── -->
+<div class="tab-bar" id="tabBar">
+  <button class="tab-btn active" data-tab="dash">仪表板</button>
+  <button class="tab-btn" data-tab="submit">提交任务</button>
+  <button class="tab-btn" data-tab="tasks">任务列表</button>
+  <button class="tab-btn" data-tab="results">抓取结果</button>
+</div>
+
+<!-- ── Dashboard Tab ── -->
+<div class="tab-panel active" id="tab-dash">
+  <div class="page-content">
+    <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
+      <div class="stat-card"><div class="stat-label">已提交</div><div class="stat-value" style="color:var(--primary)" id="s-total">0</div></div>
+      <div class="stat-card"><div class="stat-label">成功率</div><div class="stat-value" style="color:var(--green)" id="s-rate">--</div><div class="progress-wrap" style="margin-top:8px"><div class="progress-bar"><div class="progress-fill" id="s-bar" style="width:0%"></div></div></div></div>
+      <div class="stat-card"><div class="stat-label">处理中</div><div class="stat-value" style="color:var(--orange)" id="s-active">0</div></div>
+      <div class="stat-card"><div class="stat-label">并发槽位</div><div class="stat-value" id="s-concur">5/5</div><div class="stat-sub">自适应 2~5</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>域名</th><th>任务数</th><th>成功率</th><th>平均耗时</th><th>失败数</th></tr></thead>
+      <tbody id="domain-tbl"><tr><td colspan="5"><div class="empty-state">暂无数据</div></td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Submit Tab ── -->
+<div class="tab-panel" id="tab-submit">
+  <div class="page-content" style="max-width:800px">
+    <div class="form-card">
+      <h3>单个提交</h3>
+      <div class="form-row">
+        <input class="search-input" id="single-url" placeholder="https://www.amazon.com/dp/B0CJ5YHZ7V" style="flex:1">
+        <select class="search-input" id="single-prio" style="width:130px">
+          <option value="0">自动优先级</option><option value="90">高 90</option><option value="50">中 50</option><option value="10">低 10</option>
+        </select>
+        <button class="btn-primary" onclick="submitOne()">提交</button>
+      </div>
+    </div>
+    <div class="form-card">
+      <h3>批量提交 <span style="font-weight:400;color:var(--ink-muted-48);font-size:14px">每行一个 URL</span></h3>
+      <textarea class="search-input" id="batch-urls" placeholder="https://www.amazon.com/dp/商品1&#10;https://www.walmart.com/ip/商品2&#10;https://www.ebay.com/itm/商品3"></textarea>
+      <div class="form-row" style="margin-top:14px">
+        <button class="btn-primary" id="batch-btn" style="background:var(--green)" onclick="submitBatch()">批量提交</button>
+        <button class="btn-ghost" onclick="loadDemo()">加载演示</button>
+        <button class="btn-ghost" onclick="clearAll()">清空</button>
+        <input type="file" id="file-import" accept=".txt,.csv" style="display:none" onchange="importFile(event)">
+        <button class="btn-ghost" onclick="document.getElementById('file-import').click()">导入</button>
+        <button class="btn-ghost" id="resume-btn" style="display:none" onclick="resumeBatch()">继续上次</button>
+      </div>
+      <div id="batch-status"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Tasks Tab ── -->
+<div class="tab-panel" id="tab-tasks">
+  <div class="page-content">
+    <div class="form-row" style="margin-bottom:16px">
+      <select class="search-input" id="task-filter" style="width:140px" onchange="loadTasks()">
+        <option value="">全部状态</option><option value="pending">待处理</option><option value="running">运行中</option><option value="success">已完成</option><option value="failed">失败</option>
+      </select>
+      <input class="search-input" id="task-domain" placeholder="域名筛选..." style="max-width:200px" oninput="loadTasks()">
+      <button class="btn-ghost btn-ghost-sm" onclick="loadTasks()">刷新</button>
+    </div>
+    <div class="card-grid" id="task-grid"><div class="empty-state">暂无任务</div></div>
+  </div>
+</div>
+
+<!-- ── Results Tab ── -->
+<div class="tab-panel" id="tab-results">
+  <div class="page-content">
+    <div class="form-row" style="margin-bottom:16px">
+      <button class="btn-primary btn-ghost-sm" onclick="exportRes()">导出 JSON</button>
+      <button class="btn-ghost btn-ghost-sm" onclick="copyAllResults()">复制全部</button>
+    </div>
+    <div class="tbl-wrap">
+      <table><thead><tr><th>任务</th><th>URL</th><th>状态</th><th>提取预览</th><th>操作</th></tr></thead>
+      <tbody id="result-tbl"><tr><td colspan="5"><div class="empty-state">暂无完成结果</div></td></tr></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal ── -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="event.target===this&&closeModal()">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<div class="footer">Pachong · 分布式爬虫系统</div>
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// ── State ──
+let mode='fast',taskData={},batchStart=0,batchTotal=0;
+
+async function api(p,m='GET',b=null){
+  const o={method:m,headers:{'Content-Type':'application/json'}};
+  if(b)o.body=JSON.stringify(b);
+  try{const r=await fetch(p,o);if(!r.ok)throw Error(await r.text());return await r.json();}
+  catch(e){toast(e.message,'err');return null;}
+}
+
+function toast(m,t='ok'){const e=document.createElement('div');e.className='toast toast-'+t;e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),2500);}
+
+// ── Theme ──
+function toggleTheme(){
+  const d=document.body.classList.toggle('dark');
+  localStorage.setItem('theme',d?'dark':'light');
+  document.getElementById('themeLabel').textContent=d?'深色':'浅色';
+}
+(function(){
+  const s=localStorage.getItem('theme');
+  if(s==='dark'||(!s&&matchMedia('(prefers-color-scheme:dark)').matches)){document.body.classList.add('dark');document.getElementById('themeLabel').textContent='深色';}
+  checkResume();
+})();
+
+function setMode(m){mode=m;document.querySelectorAll('.mode-switch button').forEach((b,i)=>b.classList.toggle('active',(i===0&&m==='fast')||(i===1&&m==='deep')));}
+
+// ── Tabs ──
+function switchTab(t){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+t));document.getElementById('pageTitle').textContent={'dash':'仪表板','submit':'提交任务','tasks':'任务列表','results':'抓取结果'}[t];if(t==='dash')loadDash();if(t==='tasks')loadTasks();if(t==='results')loadResults();}
+document.querySelectorAll('.tab-btn').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+document.getElementById('newTaskBtn').onclick=()=>switchTab('submit');
+
+// ── Submit ──
+async function submitOne(){
+  const u=document.getElementById('single-url').value.trim();if(!u)return toast('请输入URL','err');
+  const p=parseInt(document.getElementById('single-prio').value)||0;
+  const r=await api('/api/tasks/submit?deep='+(mode==='deep'),'POST',{url:u,priority:p});
+  if(r){toast('已提交：'+r.task_id.slice(0,12)+'...');document.getElementById('single-url').value='';}
+}
+async function submitBatch(){
+  const t=document.getElementById('batch-urls').value.trim();if(!t)return toast('请粘贴URL','err');
+  const urls=t.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http'));
+  if(!urls.length)return toast('没有找到有效URL','err');
+  const b=document.getElementById('batch-btn');b.disabled=true;b.textContent='提交中...';
+  const r=await api('/api/tasks/submit/batch?deep='+(mode==='deep'),'POST',urls.map(u=>({url:u,priority:0})));
+  if(r){batchStart=Date.now();batchTotal=urls.length;showProgress(0,r.accepted+' 个URL已提交');toast('批量：'+r.accepted+' 个');monitorBatch(r.task_ids);}
+  b.disabled=false;b.textContent='批量提交';
+}
+function showProgress(done,msg){
+  const pct=Math.round(done/Math.max(1,batchTotal)*100),el=(Date.now()-batchStart)/1000;
+  const eta=done>0?Math.round(el/done*(batchTotal-done)):0,etaS=eta>0?(eta>60?Math.round(eta/60)+'分':'')+eta%60+'秒':'--';
+  document.getElementById('batch-status').innerHTML=`<div class="batch-bar"><span>${msg}</span><span style="color:var(--ink-muted-48)">${done}/${batchTotal}</span>${done>0?`<span style="color:var(--ink-muted-48);font-size:12px">预计剩余 ${etaS}</span>`:''}<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill" id="bp" style="width:${pct}%"></div></div></div></div>`;
+}
+async function monitorBatch(ids){
+  const iv=setInterval(async()=>{let d=0;for(const tid of ids){const t=await api('/api/tasks/'+tid);if(t&&(t.status==='success'||t.status==='failed'))d++;}showProgress(d,'处理中...');if(d>=ids.length){clearInterval(iv);showProgress(d,'全部完成！');toast('完成！');loadTasks();loadDash();}},1500);
+}
+function loadDemo(){
+  document.getElementById('batch-urls').value=['https://www.amazon.com/dp/B0CJ5YHZ7V','https://www.walmart.com/ip/test','https://www.ebay.com/itm/vintage','https://httpbin.org/get','https://books.toscrape.com/','https://fakestoreapi.com/products/1','https://www.baidu.com'].join('\n');
+  toast('已加载演示URL');
+}
+function importFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{document.getElementById('batch-urls').value=ev.target.result;toast('已导入：'+f.name)};r.readAsText(f);e.target.value='';}
+async function checkResume(){const r=await api('/api/batch/resume');if(r&&r.pending>0){document.getElementById('resume-btn').style.display='';document.getElementById('resume-btn').textContent='继续上次('+r.pending+')';}}
+async function resumeBatch(){const r=await api('/api/batch/resume');if(r&&r.urls.length>0){document.getElementById('batch-urls').value=r.urls.map(u=>u.url).join('\n');toast('已恢复 '+r.urls.length+' 个URL');await api('/api/batch/clear','POST');document.getElementById('resume-btn').style.display='none';}}
+function clearAll(){document.getElementById('batch-urls').value='';document.getElementById('batch-status').innerHTML='';}
+
+// ── Tasks ──
+async function loadTasks(){
+  const s=document.getElementById('task-filter').value,d=document.getElementById('task-domain').value.trim();
+  let q='?limit=300';if(s)q+='&status='+s;if(d)q+='&domain='+d;
+  const r=await api('/api/tasks/'+q);if(!r||!r.tasks){document.getElementById('task-grid').innerHTML='<div class="empty-state">暂无数据</div>';return;}
+  document.getElementById('task-grid').innerHTML=r.tasks.map(t=>{
+    const st={'pending':'待处理','running':'运行中','success':'已完成','failed':'失败'}[t.status]||t.status;
+    const cls='badge-'+t.status,f=taskData[t.task_id]||{},ff=f._full_result||{},fields=ff.extracted_data||t.result||{};
+    const nf=Object.keys(fields).length,tms=ff.total_time_ms||9999,sc=tms<1000?'speed-fast':tms<3000?'speed-ok':tms<5000?'speed-slow':'speed-bad';
+    const hintMap={blocked_403:'403拦截',rate_limited:'429限流',timeout:'超时',unreachable:'不可达',cloudflare_detected:'CF检测',dns_failed:'DNS失败'};
+    const hint=ff.bot_hint||'',hintText=hintMap[hint]||'';
+    const pre=Object.entries(fields).slice(0,4).map(([k,v])=>k+':'+String(v).slice(0,20)).join(', ')||'-';
+    return `<div class="task-card">
+      <div class="card-url" title="${t.url||''}">${(t.url||'').slice(0,80)}</div>
+      <div class="card-meta">
+        <span>${t.domain||'-'}</span>
+        <span class="badge ${cls}">${st}</span>
+        ${hintText?`<span class="badge badge-hint">${hintText}</span>`:''}
+        <span class="speed-badge ${sc}">${tms<9999?Math.round(tms)+'ms':'-'}</span>
+        <span>引擎:${ff.engine||'-'}</span>
+      </div>
+      <div class="card-result">${nf>0?pre:'等待处理'}</div>
+      <div class="card-actions">
+        <button class="btn-ghost btn-ghost-sm" onclick="viewDetail('${t.task_id}')">详情</button>
+        <button class="btn-ghost btn-ghost-sm btn-danger" onclick="retryTask('${t.task_id}','${t.url||''}','${t.domain||''}')">重试</button>
+      </div></div>`;
+  }).join('')||'<div class="empty-state">暂无任务</div>';
+}
+
+// ── Results ──
+async function loadResults(){
+  const r=await api('/api/tasks/?status=success&limit=100');if(!r)return;
+  document.getElementById('result-tbl').innerHTML=(r.tasks||[]).map(t=>{
+    const f=taskData[t.task_id]||{},fields=f._full_result?.extracted_data||t.result||{};
+    const pre=Object.entries(fields).slice(0,4).map(([k,v])=>k+':'+String(v).slice(0,20)).join('|')||'-';
+    return `<tr><td class="mono">${(t.task_id||'').slice(0,10)}...</td><td class="url-td">${t.url||''}</td><td><span class="badge badge-success">已完成</span></td><td>${pre}</td><td><button class="btn-ghost btn-ghost-sm" onclick="viewResult('${t.task_id}')">查看</button><button class="btn-ghost btn-ghost-sm" onclick="copyResult('${t.task_id}')">复制</button></td></tr>`;
+  }).join('')||'<tr><td colspan="5"><div class="empty-state">暂无完成结果</div></td></tr>';
+}
+
+// ── Dashboard ──
+async function loadDash(){
+  const s=await api('/api/stats');
+  if(s){document.getElementById('s-concur').textContent=s.concurrency.current+'/'+s.concurrency.max;let d='';for(const[k,v]of Object.entries(s.domains||{})){const c=v.success_rate>70?'var(--green)':v.success_rate>30?'var(--orange)':'var(--red)';d+=`<tr><td>${k}</td><td>${v.total}</td><td style="color:${c}">${v.success_rate}%</td><td>${v.avg_ms}ms</td><td>${v.fail}</td></tr>`;}document.getElementById('domain-tbl').innerHTML=d||'<tr><td colspan="5"><div class="empty-state">暂无数据</div></td></tr>';}
+  const r=await api('/api/tasks/?limit=300');if(!r)return;const ts=r.tasks||[],t=ts.length,ok=ts.filter(x=>x.status==='success').length,act=ts.filter(x=>x.status==='running'||x.status==='pending').length,rate=t>0?Math.round(ok/t*100):0;
+  document.getElementById('s-total').textContent=t;document.getElementById('s-rate').textContent=rate+'%';document.getElementById('s-bar').style.width=rate+'%';document.getElementById('s-active').textContent=act;
+}
+
+// ── Detail ──
+async function viewDetail(tid){
+  const t=await api('/api/tasks/'+tid);if(t)taskData[tid]=t;const f=taskData[tid]?._full_result||{},fields=f.extracted_data||t.result||{};
+  const hintMap={blocked_403:'被服务器拒绝(HTTP 403)',rate_limited:'被限流(HTTP 429)',cloudflare_detected:'检测到Cloudflare防护',timeout:'请求超时',unreachable:'目标不可达',dns_failed:'DNS解析失败'},hint=f.bot_hint?`<div style="color:var(--red);font-size:14px;margin-bottom:10px">${hintMap[f.bot_hint]||f.bot_hint}</div>`:'';
+  document.getElementById('modal-body').innerHTML=`<h3>任务详情 <button class="modal-close" onclick="closeModal()">×</button></h3><div style="margin-bottom:6px;font-size:14px"><b>URL：</b>${t.url}</div><div style="margin-bottom:6px;font-size:14px"><b>状态：</b>${t.status} · <b>引擎：</b>${f.engine||'-'} · <b>耗时：</b>${f.total_time_ms?Math.round(f.total_time_ms)+'ms':'-'}</div>${hint}<h4 style="margin:12px 0 6px;font-family:var(--font-display);font-weight:600">提取数据</h4><div class="json-v">${JSON.stringify(fields,null,2)}</div>`;document.getElementById('modal').style.display='flex';
+}
+function viewResult(tid){viewDetail(tid);}function closeModal(){document.getElementById('modal').style.display='none';}
+async function copyResult(tid){const t=await api('/api/tasks/'+tid);if(t){const f=(taskData[tid]?._full_result?.extracted_data||t.result||{});await navigator.clipboard.writeText(JSON.stringify(f,null,2));toast('已复制');}}
+async function copyAllResults(){const r=await api('/api/tasks/?status=success&limit=500');if(!r)return;const d=r.tasks.filter(t=>t.result).map(t=>({url:t.url,domain:t.domain,result:t.result}));await navigator.clipboard.writeText(JSON.stringify(d,null,2));toast('已复制 '+d.length+' 条');}
+async function exportRes(){const r=await api('/api/tasks/?status=success&limit=500');if(!r)return;const d=r.tasks.filter(t=>t.result).map(t=>({url:t.url,domain:t.domain,result:t.result}));const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='pachong-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('已导出 '+d.length+' 条');}
+async function retryTask(tid,url,domain){const r=await api('/api/tasks/submit?deep='+(mode==='deep'),'POST',{url,priority:0});if(r)toast('已重新提交');}
+
+// ── Back to top ──
+window.addEventListener('scroll',()=>{document.getElementById('backTop').classList.toggle('show',window.scrollY>400);});
+
+// ── Auto refresh ──
+setInterval(()=>{const a=document.querySelector('.tab-panel.active');if(a?.id==='tab-dash')loadDash();if(a?.id==='tab-tasks')loadTasks();if(a?.id==='tab-results')loadResults();},3000);
+</script>
+</body>
+</html>

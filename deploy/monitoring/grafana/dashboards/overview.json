@@ -1,0 +1,48 @@
+{
+  "title": "Pachong Overview",
+  "panels": [
+    {
+      "title": "Tasks Processed",
+      "targets": [{"expr": "rate(pachong_tasks_processed_total[1m])"}]
+    },
+    {
+      "title": "Ban Scores by Domain",
+      "targets": [{"expr": "pachong_ban_score"}]
+    },
+    {
+      "title": "Domain QPS",
+      "targets": [{"expr": "pachong_domain_qps"}]
+    },
+    {
+      "title": "Block Rate by Domain",
+      "targets": [{"expr": "pachong_domain_block_rate"}]
+    },
+    {
+      "title": "Request Latency (P50/P99)",
+      "targets": [
+        {"expr": "histogram_quantile(0.50, rate(pachong_task_latency_seconds_bucket[5m]))", "legendFormat": "P50"},
+        {"expr": "histogram_quantile(0.99, rate(pachong_task_latency_seconds_bucket[5m]))", "legendFormat": "P99"}
+      ]
+    },
+    {
+      "title": "Engine Escalations",
+      "targets": [{"expr": "rate(pachong_engine_escalations_total[5m])"}]
+    },
+    {
+      "title": "Proxy Pool Size",
+      "targets": [{"expr": "pachong_proxy_pool_size"}]
+    },
+    {
+      "title": "Extraction Strategy Distribution",
+      "targets": [{"expr": "rate(pachong_extractions_total[5m])"}]
+    },
+    {
+      "title": "Kafka Queue Depth",
+      "targets": [{"expr": "pachong_kafka_queue_depth"}]
+    },
+    {
+      "title": "Circuit Breaker Status",
+      "targets": [{"expr": "pachong_circuit_breaker_state"}]
+    }
+  ]
+}

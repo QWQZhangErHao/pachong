@@ -1,0 +1,190 @@
+# Full local development stack for Pachong
+# Start: docker compose up -d
+# Stop:  docker compose down
+
+services:
+  # ── Infrastructure ──────────────────────────────────────────────────
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pachong
+      POSTGRES_PASSWORD: pachong
+      POSTGRES_DB: pachong
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pachong"]
+      interval: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: pachong
+      MONGO_INITDB_ROOT_PASSWORD: pachong
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    environment:
+      CLUSTER_ID: "5L6g3nShT-eMCtK--X86sw"   # 必须提供，修复 KRaft 模式启动失败
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9002:9000"   # 宿主机端口改为 9002 避免冲突
+      - "9003:9001"   # 控制台映射为 9003
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      retries: 5
+
+  # ── Monitoring ──────────────────────────────────────────────────────
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../monitoring/prometheus/rules:/etc/prometheus/rules
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../monitoring/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ../monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - grafana_data:/var/lib/grafana
+
+  # ── Pachong Services ────────────────────────────────────────────────
+
+  pachong-api:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.dev
+    environment:
+      PACHONG_ENV: development
+      PACHONG_DATABASE__POSTGRES_DSN: postgresql+asyncpg://pachong:pachong@postgres:5432/pachong
+      PACHONG_DATABASE__MONGO_URI: mongodb://pachong:pachong@mongodb:27017
+      PACHONG_DATABASE__REDIS_URI: redis://redis:6379/0
+      PACHONG_S3__ENDPOINT: http://minio:9000
+      PACHONG_QUEUE__KAFKA_BROKERS: '["kafka:9092"]'
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ../..:/app
+    command: python -m pachong.cli.main api
+
+  pachong-scheduler:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.dev
+    environment:
+      PACHONG_ENV: development
+      PACHONG_DATABASE__POSTGRES_DSN: postgresql+asyncpg://pachong:pachong@postgres:5432/pachong
+      PACHONG_DATABASE__REDIS_URI: redis://redis:6379/0
+      PACHONG_QUEUE__KAFKA_BROKERS: '["kafka:9092"]'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ../..:/app
+    command: python -m pachong.cli.main scheduler
+
+  pachong-worker:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.dev
+    environment:
+      PACHONG_ENV: development
+      PACHONG_DATABASE__POSTGRES_DSN: postgresql+asyncpg://pachong:pachong@postgres:5432/pachong
+      PACHONG_DATABASE__MONGO_URI: mongodb://pachong:pachong@mongodb:27017
+      PACHONG_DATABASE__REDIS_URI: redis://redis:6379/0
+      PACHONG_S3__ENDPOINT: http://minio:9000
+      PACHONG_QUEUE__KAFKA_BROKERS: '["kafka:9092"]'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ../..:/app
+    command: python -m pachong.cli.main worker
+    deploy:
+      replicas: 2
+
+volumes:
+  postgres_data:
+  mongo_data:
+  redis_data:
+  kafka_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:

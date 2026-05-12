@@ -1,0 +1,127 @@
+# =============================================================================
+# Pachong Default Configuration
+# =============================================================================
+# All values can be overridden by environment-specific YAML or PACHONG_* env vars.
+
+env: development
+log_level: INFO
+log_format: json
+
+database:
+  postgres_dsn: "postgresql+asyncpg://pachong:pachong@localhost:5432/pachong"
+  mongo_uri: "mongodb://localhost:27017"
+  mongo_db_name: pachong
+  redis_uri: "redis://localhost:6379/0"
+  postgres_pool_min: 5
+  postgres_pool_max: 20
+  mongo_pool_min: 5
+  mongo_pool_max: 20
+  redis_pool_size: 20
+
+s3:
+  endpoint: "http://localhost:9000"
+  access_key: minioadmin
+  secret_key: minioadmin
+  bucket: pachong-raw
+  region: us-east-1
+  use_ssl: false
+  compression: brotli
+  compression_level: 6
+  upload_timeout_ms: 60000
+
+queue:
+  backend: kafka
+  kafka_brokers:
+    - localhost:9092
+  kafka_topic_prefix: pachong
+  consumer_group: pachong-workers
+  max_poll_records: 500
+  session_timeout_ms: 30000
+  heartbeat_interval_ms: 3000
+
+network:
+  max_concurrent_requests: 100
+  connection_pool_size: 50
+  http2_enabled: true
+  request_timeout_ms: 30000
+  connect_timeout_ms: 5000
+  dns_cache_ttl_seconds: 300
+  tcp_keepalive_seconds: 60
+  playwright_browser_count: 4
+  playwright_headless: true
+  playwright_block_images: true
+  playwright_block_fonts: true
+  playwright_block_analytics: true
+  lightpanda_binary_path: lightpanda
+  lightpanda_auto_restart: true
+  nodriver_max_concurrent: 2
+  adaptive_decision_cache_ttl: 300
+  adaptive_engine_scores:
+    http: 1.0
+    playwright: 0.8
+    lightpanda: 0.95
+    nodriver: 0.3
+
+anti_detect:
+  identity_pool_size: 20
+  identity_rotation_requests: 50
+  fingerprint_consistency_check: true
+  geo_bound_enabled: true
+  geoip_db_path: data/GeoLite2-City.mmdb
+  behavior_simulation_enabled: false
+  behavior_model_path: data/behavior_model.pt
+  bandit_algorithm: thompson
+  bandit_exploration_rate: 0.1
+  proxy_pool_min_size: 20
+  proxy_health_check_interval_ms: 60000
+  proxy_rotation_strategy: bandit
+
+extractor:
+  default_strategy: css_xpath
+  rule_cache_ttl_seconds: 86400
+  rule_max_retries: 3
+  llm_healer_enabled: true
+  llm_healer_model: gpt-4o
+  llm_healer_max_concurrent: 3
+  redlock_ttl_ms: 30000
+  redlock_retry_count: 3
+  redlock_retry_delay_ms: 500
+  multimodal_model: gpt-4o
+  multimodal_max_tokens: 4096
+  render_service: splash
+  render_service_url: "http://localhost:8050"
+  render_timeout_ms: 15000
+
+resilience:
+  ban_threshold_score: 0.5
+  ban_detection_window_seconds: 300
+  pid_kp: 0.5
+  pid_ki: 0.1
+  pid_kd: 0.05
+  pid_target_block_rate: 0.05
+  pid_update_interval_ms: 10000
+  circuit_breaker_failure_threshold: 10
+  circuit_breaker_cooldown_seconds: 60
+  circuit_breaker_half_open_max: 3
+  default_domain_qps: 1.0
+  max_domain_qps: 10.0
+  min_domain_qps: 0.1
+  qps_backoff_multiplier: 0.5
+  qps_recovery_multiplier: 1.2
+
+serverless:
+  enabled: false
+  provider: local
+  max_concurrent_functions: 50
+  dispatch_queue_depth_threshold: 1000
+  function_timeout_ms: 300000
+  function_memory_mb: 1024
+  aws_lambda_function_name: pachong-worker
+  gcp_function_name: pachong-worker
+
+tracing:
+  enabled: true
+  exporter: otlp
+  otlp_endpoint: "http://localhost:4317"
+  service_name: pachong
+  sample_rate: 1.0

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pachong-scheduler
+  namespace: pachong
+  labels:
+    app: pachong
+    component: scheduler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pachong
+      component: scheduler
+  template:
+    metadata:
+      labels:
+        app: pachong
+        component: scheduler
+    spec:
+      containers:
+        - name: scheduler
+          image: pachong:latest
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "pachong.cli.main", "scheduler"]
+          envFrom:
+            - configMapRef:
+                name: pachong-config
+            - secretRef:
+                name: pachong-secrets
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10

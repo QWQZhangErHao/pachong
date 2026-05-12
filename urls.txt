@@ -1,0 +1,5 @@
+https://amazon.com/dp/B0CJ5YHZ7V
+https://walmart.com/ip/example-product
+https://ebay.com/itm/sample-item
+https://shop.example.com/product/test-product
+https://store.example.com/category/electronics

@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pachong-config
+  namespace: pachong
+data:
+  PACHONG_ENV: "production"
+  PACHONG_LOG_LEVEL: "INFO"
+  PACHONG_LOG_FORMAT: "json"
+  PACHONG_DATABASE__POSTGRES_DSN: "postgresql+asyncpg://pachong:pachong@postgres.pachong.svc:5432/pachong"
+  PACHONG_DATABASE__MONGO_URI: "mongodb://pachong:pachong@mongodb.pachong.svc:27017"
+  PACHONG_DATABASE__REDIS_URI: "redis://redis.pachong.svc:6379/0"
+  PACHONG_S3__ENDPOINT: "http://minio.pachong.svc:9000"
+  PACHONG_S3__BUCKET: "pachong-raw"
+  PACHONG_S3__REGION: "us-east-1"
+  PACHONG_QUEUE__KAFKA_BROKERS: '["kafka.pachong.svc:9092"]'
+  PACHONG_TRACING__OTLP_ENDPOINT: "http://jaeger-collector.pachong.svc:4317"

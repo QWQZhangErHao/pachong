@@ -1,0 +1,16 @@
+# Production overrides
+env: production
+log_level: INFO
+log_format: json
+
+network:
+  max_concurrent_requests: 500
+  connection_pool_size: 200
+  playwright_headless: true
+
+serverless:
+  enabled: true
+
+tracing:
+  exporter: otlp
+  sample_rate: 0.1  # Sample 10% in production

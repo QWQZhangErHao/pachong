@@ -1,0 +1,56 @@
+groups:
+  - name: pachong_alerts
+    rules:
+      - alert: HighBanScore
+        expr: pachong_ban_score > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Domain {{ $labels.domain }} has elevated ban score"
+          description: "Ban score is {{ $value }} for {{ $labels.domain }}. PID should auto-regulate."
+
+      - alert: DomainBlocked
+        expr: pachong_ban_score > 0.8
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Domain {{ $labels.domain }} is heavily blocked"
+          description: "Ban score {{ $value }}. QPS reduced to minimum. Manual intervention may be required."
+
+      - alert: ProxyPoolLow
+        expr: pachong_proxy_pool_size < 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Proxy pool has fewer than 5 active proxies"
+          description: "Only {{ $value }} proxies available. Crawl capacity is degraded."
+
+      - alert: HighFailureRate
+        expr: rate(pachong_tasks_processed_total{status="failed"}[5m]) / rate(pachong_tasks_processed_total[5m]) > 0.3
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High task failure rate detected"
+          description: "Failure rate is above 30%. Check ban scores and proxy health."
+
+      - alert: KafkaQueueBacklog
+        expr: pachong_kafka_queue_depth > 5000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Kafka queue backlog building up"
+          description: "{{ $value }} messages pending in topic {{ $labels.topic }}. Consider adding workers."
+
+      - alert: NoWorkers
+        expr: pachong_active_workers == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No active worker processes"
+          description: "Zero workers detected. No tasks will be processed."

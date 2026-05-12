@@ -1,0 +1,18 @@
+# Development overrides
+env: development
+log_level: DEBUG
+log_format: console
+
+database:
+  postgres_dsn: "postgresql+asyncpg://pachong:pachong@localhost:5432/pachong_dev"
+
+network:
+  max_concurrent_requests: 20
+  playwright_headless: false
+
+tracing:
+  exporter: console
+
+anti_detect:
+  behavior_simulation_enabled: false
+  geo_bound_enabled: false  # No GeoIP DB in dev

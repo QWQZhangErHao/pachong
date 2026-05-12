@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pachong-worker
+  namespace: pachong
+  labels:
+    app: pachong
+    component: worker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: pachong
+      component: worker
+  template:
+    metadata:
+      labels:
+        app: pachong
+        component: worker
+    spec:
+      containers:
+        - name: worker
+          image: pachong:latest
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "pachong.cli.main", "worker"]
+          envFrom:
+            - configMapRef:
+                name: pachong-config
+            - secretRef:
+                name: pachong-secrets
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 2000m
+              memory: 2048Mi
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pachong-worker-hpa
+  namespace: pachong
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pachong-worker
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Pods
+      pods:
+        metric:
+          name: pachong_kafka_queue_depth
+        target:
+          type: AverageValue
+          averageValue: "2000"
