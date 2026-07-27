@@ -365,44 +365,54 @@ ws.onmessage = (event) => {
 ## 📁 Project Structure
 
 ```
-pachong/
-├── api/                    # FastAPI routing layer
-│   ├── routes/             # Endpoints (tasks, stats, batch)
-│   └── services/           # Task CRUD services
-├── core/                   # Core entities & configuration
-│   ├── config.py           # YAML config + hot-reload
-│   ├── entities.py         # Pydantic models
-│   └── exceptions.py       # Exception hierarchy
-├── scheduler/              # Scheduler
-│   ├── queue.py            # Priority queue + dedup
-│   ├── rate_limiter.py     # Per-domain token bucket
-│   └── dispatcher.py       # Kafka/Redis dispatch
-├── network/                # Network layer
-│   ├── http_client.py      # aiohttp connection pool
-│   ├── dns_cache.py        # DNS cache + pre-warm
-│   ├── browser_pool.py     # Playwright instance pool
-│   └── anti_detect/        # Anti-detection (fingerprint, proxy)
-├── extractor/              # Extraction pipeline
-│   ├── pipeline.py         # 5-layer engine orchestration
-│   ├── llm_fix.py          # LLM fix + cache
-│   ├── adaptive_ie.py      # spaCy NER adaptive
-│   └── schemas/            # Data schemas
-├── storage/                # Storage layer
-│   ├── repository.py       # Batch write + resume
-│   └── models.py           # ORM models
-├── resilience/             # Resilience
-│   ├── circuit_breaker.py  # Circuit breaker
-│   ├── ban_detector.py     # Anti-bot feedback
-│   └── metrics.py          # Prometheus metrics
-├── cli/                    # Typer CLI
-├── tests/                  # Tests
-├── scripts/                # Helper scripts
-├── deploy/                 # Deployment configs
-│   ├── docker-compose.yml  # Full service orchestration
-│   └── k8s/                # Kubernetes manifests
-├── config/                 # Configuration files
-├── Makefile                # Build commands
-└── pyproject.toml          # Project metadata
+pachong/                          # 📦 Source code
+├── api/                          # FastAPI routing layer
+├── cli/                          # Typer CLI entrypoint
+├── core/                         # Config, models, exceptions
+├── network/                      # HTTP, browser pool, anti-detection
+├── extractor/                    # 5-layer extraction pipeline
+├── scheduler/                    # Priority queue, rate limiter
+├── queue/                        # Kafka/Redis message backends
+├── storage/                      # PostgreSQL, Redis, S3, MongoDB
+├── resilience/                   # Circuit breaker, metrics
+├── anti_detect/                  # Fingerprint, identity, proxy
+├── serverless/                   # AWS Lambda / GCP functions
+└── tracing/                      # OpenTelemetry setup
+
+scripts/                          # 🛠️ Helper scripts
+├── build.bat                     # Build & package (Windows)
+├── start.bat                     # Quick-start server (Windows)
+├── pachong.bat                   # CLI frontend (Windows)
+├── pachong.spec                  # PyInstaller spec
+├── submit.py                     # URL submission tool
+├── package.py                    # Portable distribution packager
+├── seed_proxies.py               # Seed dev proxy pool
+├── init_db.sh                    # DB initialization
+└── urls.txt                      # Sample URLs for batch testing
+
+config/                           # ⚙️ Configuration
+├── default.yaml                  # Default settings
+├── development.yaml              # Dev overrides
+└── production.yaml               # Prod overrides
+
+deploy/                           # 🚀 Deployment
+├── docker/                       # Dockerfiles + compose
+├── k8s/                          # Kubernetes manifests
+├── monitoring/                   # Prometheus + Grafana
+└── serverless/                   # Lambda/GCP handlers
+
+tests/                            # 🧪 Tests
+├── unit/                         # Unit tests
+└── integration/                  # Integration tests
+
+📄 Root files
+├── demo.py                       # Zero-dependency demo (start here!)
+├── Makefile                      # Build commands
+├── pyproject.toml                # Project metadata & dependencies
+├── README.md                     # This file
+├── CLAUDE.md                     # AI assistant instructions
+├── alembic.ini                   # DB migrations config
+└── .env.example                  # Environment template
 ```
 
 ---

@@ -31,7 +31,7 @@ if "%1"=="run" (
     ) else if "%2"=="test" (
         python -m pytest tests/ -v
     ) else if "%2"=="submit" (
-        python submit.py --file "%3"
+        python scripts/submit.py --file "%3"
     ) else if "%2"=="shell" (
         python -c "import pachong; from pachong.core.settings import Settings; from pachong.core.models import *; from pachong.anti_detect.identity.generator import IdentityGenerator; from pachong.extractor.pipeline import ExtractionPipeline; print('Pachong shell ready. Try: IdentityGenerator().generate(\"Asia/Shanghai\")')" && python
     ) else (

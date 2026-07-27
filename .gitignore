@@ -15,3 +15,7 @@ htmlcov/
 .coverage.*
 data/
 *.db
+
+# Runtime state (auto-generated, do not track)
+*.state.json
+*.cache.json

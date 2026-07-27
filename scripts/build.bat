@@ -36,7 +36,7 @@ goto end
 echo.
 echo === Building standalone .exe with PyInstaller ===
 pip install pyinstaller -q
-pyinstaller pachong.spec --clean
+pyinstaller scripts/pachong.spec --clean
 echo.
 echo Output: dist\pachong.exe
 echo Run:    dist\pachong.exe --help
@@ -73,7 +73,7 @@ python -m build
 echo.
 echo [3/3] Building standalone .exe...
 pip install pyinstaller -q
-pyinstaller pachong.spec --clean
+pyinstaller scripts/pachong.spec --clean
 echo.
 echo ============================================================
 echo   Release Complete!

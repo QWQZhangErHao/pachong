@@ -80,6 +80,7 @@ include = [
     "alembic.ini",
     "Makefile",
     "README.md",
+    "demo.py",
 ]
 
 [tool.ruff]
