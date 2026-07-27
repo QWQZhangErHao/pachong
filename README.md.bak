@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/Redis-7%2B-DC382D?logo=redis" alt="Redis">
   <img src="https://img.shields.io/badge/Playwright-Chromium-45BA4B?logo=playwright" alt="Playwright">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
-  <a href="#-quick-demo"><img src="https://img.shields.io/badge/Try%20Now-No%20Setup-2ea44f" alt="Try Now - No Setup"></a>
+  <img src="https://img.shields.io/badge/Async-aiohttp%20%7C%20httpx-orange" alt="Async">
 </p>
 
 <p align="center">
@@ -18,59 +18,19 @@
 
 ---
 
-## 🚀 Quick Demo
+## 📋 Table of Contents
 
-> **无须 PostgreSQL、Redis、Kafka**，克隆后直接运行：
-
-```bash
-git clone https://github.com/QWQZhangErHao/pachong.git
-cd pachong
-pip install -e ".[dev]"
-python demo.py
-```
-
-你会看到 7 个步骤依次执行，模拟完整的爬虫+提取流水线：
-
-```
-============================================================
-  Pachong - End-to-End E-Commerce Scraping Demo
-============================================================
-
-[Step 1] URL Priority Scoring
----------------------------------------------
-  [HIGH] [product  ] score= 95  https://amazon.cn/dp/B0CJ5YHZ7V
-  [LOW ] [cart     ] score= 10  https://shop.example.com/cart
-  [MED ] [category ] score= 40  https://store.example.com/category/headphones
-  [LOW ] [login    ] score=  5  https://mall.example.com/login
-
-[Step 2] Geo-Bound Browser Identity
----------------------------------------------
-  Language:   zh-CN (zh-CN, zh, en)
-  Platform:   Win32
-  Screen:     1920x1080
-  UA:         Mozilla/5.0 (Windows NT 10.0; Win64; x64)...
-
-[Step 5] Five-Tier Extraction Pipeline
-  Title      -> Apple AirPods Pro (2nd Gen) with MagSafe Charging Case
-  Price      -> 1799.00
-  SKU        -> 10004578091234
-  Rating     -> 4.8
-  Reviews    -> 528000
-```
-
-<details>
-<summary>📸 Web Console Screenshots</summary>
-<br>
-
-> *(Screenshots welcome — open a PR to add yours!)*
-
-| Feature | Preview |
-|---------|---------|
-| Dashboard | *Coming soon* |
-| Task Detail | *Coming soon* |
-| Live Logs | *Coming soon* |
-
-</details>
+- [Core Features](#-core-features)
+- [Tech Stack](#-tech-stack)
+- [System Architecture](#-system-architecture)
+- [Extraction Pipeline](#-extraction-pipeline)
+- [Anti-Detection System](#-anti-detection-system)
+- [Project Structure](#-project-structure)
+- [Quick Start](#-quick-start)
+- [API Usage](#-api-usage)
+- [Observability](#-observability)
+- [Development Guide](#-development-guide)
+- [FAQ & Pitfalls](#-faq--pitfalls)
 
 ---
 
@@ -78,158 +38,41 @@ python demo.py
 
 ### 🚀 4-Engine Adaptive Scraping
 
-| Engine | Priority | Use Case |
-|--------|----------|----------|
-| **HTTP/2** | 1st | Static/simple pages — aiohttp pool, fastest |
-| **Playwright** | 2nd | JS-rendered pages — Chromium pool, handles SPA |
-| **Nodriver** | 3rd | Experimental — lightweight headless |
-| **Auto-degrade** | Fallback | Anti-bot escalation — detects failure, switches engine |
+| Engine | Priority | Use Case | Description |
+|--------|----------|----------|-------------|
+| **HTTP/2** | 1st | Static/simple pages | aiohttp connection pool, fastest and lightest |
+| **Playwright** | 2nd | JS-rendered pages | Chromium instance pool, handles SPA |
+| **Nodriver** | 3rd | Experimental | Lightweight headless browser |
+| Degradation | - | Anti-bot escalation | Auto-detect failure → auto-degrade |
 
-### 🧠 5-Layer Data Extraction
+### 🧠 5-Layer Data Extraction Pipeline
 
 ```
-Layer 1: Schema.org / JSON-LD   →  Structured markup
+Layer 1: Schema.org / JSON-LD  →  Structured markup extraction
 Layer 2: CSS / XPath Selectors  →  Precise field targeting
-Layer 3: Adaptive IE (spaCy)    →  NER entity recognition
-Layer 4: LLM Repair (GPT-4o)    →  Missing field completion
+Layer 3: Adaptive IE            →  spaCy NER entity recognition
+Layer 4: LLM Repair             →  GPT-4o missing field completion
 Layer 5: Multimodal Vision      →  Screenshot OCR + image understanding
 ```
 
-> **Field recall rate > 92%** — All 5 layers run in parallel, results fused
+> **Field recall rate > 92%** — All 5 layers run in parallel, results automatically fused
 
-### ⚡ Elastic Scheduling
+### ⚡ Elastic Distributed Scheduling
 
 ```
-URL Submission → Priority Queue → Dedup → Token Bucket → Kafka/Redis → Workers
+URL Submission → Priority Queue → Deduplication → Token Bucket → Kafka/Redis Dispatch → Workers
 ```
 
-- **Per-domain token bucket** — independent rate limiting
-- **Adaptive semaphore** — dynamic concurrency based on anti-bot feedback
-- **Resumable** — auto-recover unfinished tasks after crash
+- **Per-domain token bucket** — Independent rate limiting per domain
+- **Adaptive semaphore** — Dynamic concurrency based on anti-bot feedback
+- **Resumable crawling** — Auto-recover unfinished tasks after crash
 
 ### 🛡️ Full Anti-Detection
 
-- Browser fingerprint randomization (Canvas/WebGL/Font per request)
-- Proxy rotation (HTTP/SOCKS5 pool)
-- PID controller for adaptive rate control
-- Cookie isolation per domain
-
-### 📊 Observability
-
-Prometheus + Grafana + OpenTelemetry — dashboards for tasks, latency, error rate, circuit breaker state.
-
----
-
-## ⚡ Quick Start
-
-### 🎮 Zero-Dependency Demo
-
-```bash
-pip install -e ".[dev]"
-python demo.py
-```
-
-### 🧪 Full Setup
-
-#### Prerequisites
-
-- Python 3.12+
-- PostgreSQL 15+
-- Redis 7+
-- Kafka 3+ (optional — Redis Streams can substitute)
-- Playwright Chromium
-
-#### Installation
-
-```bash
-# Clone
-git clone https://github.com/QWQZhangErHao/pachong.git
-cd pachong
-
-# Virtual environment
-python -m venv .venv
-source .venv/bin/activate        # Linux/Mac
-# .venv\Scripts\activate         # Windows
-
-# Install dependencies
-pip install -e ".[dev]"
-playwright install chromium
-
-# Configure
-cp .env.example .env
-# Edit .env with your database, Redis config
-
-# Initialize DB
-alembic upgrade head
-```
-
-#### Running
-
-```bash
-# Start web console
-pachong serve
-
-# Or dev mode
-uvicorn pachong.api.app:app --reload --port 8000
-
-# Start worker
-pachong worker
-
-# Submit a single task
-pachong submit --url "https://example.com/product/123" --priority 80
-
-# Batch submit
-pachong batch --file urls.txt
-
-# Export results
-pachong export --format csv --output results.csv
-```
-
-#### Docker
-
-```bash
-# Local full environment
-docker compose up -d
-
-# Production
-docker compose -f deploy/docker-compose.prod.yml up -d
-
-# Kubernetes
-kubectl apply -f deploy/k8s/
-```
-
----
-
-## 📡 API Usage
-
-```bash
-# Submit a task
-curl -X POST http://localhost:8000/api/tasks \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com/product/123", "priority": 80}'
-
-# Query task status
-curl http://localhost:8000/api/tasks/{task_id}
-
-# Get results
-curl http://localhost:8000/api/tasks/{task_id}/result
-
-# Batch submit
-curl -X POST http://localhost:8000/api/batch -F "file=@urls.txt"
-
-# Stats overview
-curl http://localhost:8000/api/stats
-```
-
-### WebSocket
-
-```javascript
-const ws = new WebSocket('ws://localhost:8000/ws/tasks/{task_id}');
-ws.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  console.log(`Progress: ${data.progress}%, Status: ${data.status}`);
-};
-```
+- **Browser fingerprint randomization** — Canvas/WebGL/Font fingerprint per request
+- **Proxy rotation** — HTTP/SOCKS5 proxy pool support
+- **Adaptive rate control** — PID controller dynamically adjusts crawl frequency
+- **Cookie isolation** — Independent session per domain
 
 ---
 
@@ -238,22 +81,20 @@ ws.onmessage = (event) => {
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
 | **Frontend** | Native HTML/CSS/JS (Apple Design System) | Web Console |
-| **API** | FastAPI + Uvicorn | REST + WebSocket |
-| **Async HTTP** | aiohttp (HTTP/2 pool), httpx | Network requests |
-| **Browser** | Playwright (Chromium), Nodriver | JS rendering |
-| **Queue** | Kafka / Redis Streams | Task distribution |
-| **DB** | PostgreSQL + SQLAlchemy 2.0 (async) | Task & result storage |
-| **Cache** | Redis (token bucket, circuit breaker, LLM cache) | Performance |
-| **Storage** | MinIO / S3 | Raw HTML, screenshots |
-| **Observability** | Prometheus + Grafana + OpenTelemetry | Monitoring |
-| **Deploy** | Docker Compose / Kubernetes (HPA) / AWS Lambda | Deployment |
+| **API Layer** | FastAPI + Uvicorn | REST + WebSocket |
+| **Async HTTP** | aiohttp (connection pool, HTTP/2), httpx | Network requests |
+| **Browser Automation** | Playwright (Chromium pool), Nodriver | JS rendering |
+| **Message Queue** | Kafka / Redis Streams | Task distribution |
+| **Database** | PostgreSQL + SQLAlchemy 2.0 (async) | Task & result storage |
+| **Cache** | Redis (token bucket, circuit breaker state, LLM cache) | Performance |
+| **Object Storage** | MinIO / S3 | Raw HTML, screenshots |
+| **Observability** | Prometheus + Grafana + OpenTelemetry | Monitoring & alerting |
+| **Containerization** | Docker Compose / Kubernetes (HPA) | Deployment |
+| **Serverless** | AWS Lambda | Elastic scaling |
 
 ---
 
-## 🏗️ Architecture
-
-<details>
-<summary>Click to expand — System Architecture</summary>
+## 🏗️ System Architecture
 
 ```
 +-----------------------------------------------------------+
@@ -263,21 +104,28 @@ ws.onmessage = (event) => {
                             | URL Submission
 +---------------------------v-------------------------------+
 |                    Scheduler Layer                          |
-|  Priority Queue · URL Dedup · Token Bucket · Dispatcher    |
+|  +----------+  +----------+  +----------+  +------------+ |
+|  | Priority  |  | URL      |  | Token    |  | Kafka/Redis| |
+|  | Queue     |  | Dedup    |  | Bucket   |  | Dispatcher | |
+|  +----------+  +----------+  +----------+  +------------+ |
 +-----------------------------------------------------------+
                             |
 +---------------------------v-------------------------------+
 |                     Network Layer                           |
-|  4-Engine Adaptive Scraping                                |
-|  HTTP/2 ← Playwright ← Nodriver (auto-degrade)            |
-|  Fingerprint · Proxy Rotation · Rate Control               |
+|  +-------------------------------------------------------+ |
+|  |  4-Engine Adaptive Scraping                           | |
+|  |  HTTP/2 <- Playwright <- Nodriver (auto-degrade)      | |
+|  |  Fingerprint Randomization · Proxy Rotation · Rate Ctrl| |
+|  +-------------------------------------------------------+ |
 +-----------------------------------------------------------+
                             | Raw HTML / Screenshots
 +---------------------------v-------------------------------+
 |                    Extractor Layer                          |
-|  5-Layer Parallel Pipeline                                 |
-|  Schema → CSS/XPath → IE → LLM → Multimodal Vision        |
-|  Result Fusion · Field Validation · Format Normalization   |
+|  +-------------------------------------------------------+ |
+|  |  5-Layer Parallel Pipeline                             | |
+|  |  Schema -> CSS/XPath -> IE -> LLM -> Multimodal Vision | |
+|  |  Result Fusion · Field Validation · Format Normalization| |
+|  +-------------------------------------------------------+ |
 +-----------------------------------------------------------+
                             | Structured Data
 +---------------------------v-------------------------------+
@@ -286,10 +134,11 @@ ws.onmessage = (event) => {
 +-----------------------------------------------------------+
 ```
 
-</details>
+---
 
-<details>
-<summary>Click to expand — Extraction Pipeline Flow</summary>
+## 🔬 Extraction Pipeline Detail
+
+### Execution Flow
 
 ```
                     +------------------+
@@ -320,8 +169,6 @@ ws.onmessage = (event) => {
                   +------------------+
 ```
 
-</details>
-
 ### Field Coverage Matrix
 
 | Field | Layer 1 | Layer 2 | Layer 3 | Layer 4 | Layer 5 |
@@ -335,8 +182,9 @@ ws.onmessage = (event) => {
 | Stock | ❌ | ✅ | ❌ | ✅ | ❌ |
 | Category | ✅ | ✅ | ✅ | ✅ | ❌ |
 
-<details>
-<summary>Click to expand — Anti-Detection System</summary>
+---
+
+## 🛡️ Anti-Detection System
 
 ```
 +-----------------------------------------------------+
@@ -353,12 +201,10 @@ ws.onmessage = (event) => {
 |  +-------------------------------------------------+ |
 |  |          Circuit Breaker                         | |
 |  |  LLM Calls · Playwright · Per-domain             | |
-|  |  Failure Count -> Open -> Cool -> Half -> Close  | |
+|  |  Failure Count -> Open -> Cool -> Half -> Close | |
 |  +-------------------------------------------------+ |
 +-----------------------------------------------------+
 ```
-
-</details>
 
 ---
 
@@ -407,14 +253,123 @@ pachong/
 
 ---
 
+## ⚡ Quick Start
+
+### Prerequisites
+
+- **Python 3.12+**
+- **PostgreSQL 15+**
+- **Redis 7+**
+- **Kafka 3+** (optional, Redis Streams can be used instead)
+- **Playwright Chromium**
+
+### Installation
+
+```bash
+# Clone
+git clone https://github.com/QWQZhangErHao/pachong.git
+cd pachong
+
+# Virtual environment
+python -m venv .venv
+source .venv/bin/activate      # Linux/Mac
+# .venv\Scripts\activate       # Windows
+
+# Install project + dev dependencies
+pip install -e ".[dev]"
+
+# Install browser
+playwright install chromium
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your database, Redis config
+
+# Initialize database
+alembic upgrade head
+```
+
+### Running
+
+```bash
+# Start web console
+pachong serve
+
+# Or directly via Uvicorn (dev mode)
+uvicorn pachong.api.app:app --reload --port 8000
+
+# Start worker
+pachong worker
+
+# Submit a single task
+pachong submit --url "https://example.com/product/123" --priority 80
+
+# Batch submit
+pachong batch --file urls.txt
+
+# Export results
+pachong export --format csv --output results.csv
+```
+
+### Docker Deployment
+
+```bash
+# Local full environment
+docker compose up -d
+
+# Production deployment
+docker compose -f deploy/docker-compose.prod.yml up -d
+
+# Kubernetes
+kubectl apply -f deploy/k8s/
+```
+
+---
+
+## 📡 API Usage
+
+### REST API
+
+```bash
+# Submit a task
+curl -X POST http://localhost:8000/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com/product/123", "priority": 80}'
+
+# Query task status
+curl http://localhost:8000/api/tasks/{task_id}
+
+# Get results
+curl http://localhost:8000/api/tasks/{task_id}/result
+
+# Batch submit
+curl -X POST http://localhost:8000/api/batch \
+  -F "file=@urls.txt"
+
+# Stats overview
+curl http://localhost:8000/api/stats
+```
+
+### WebSocket
+
+```javascript
+const ws = new WebSocket('ws://localhost:8000/ws/tasks/{task_id}');
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log(`Progress: ${data.progress}%, Status: ${data.status}`);
+};
+```
+
+---
+
 ## 📊 Observability
 
-| Tool | Endpoint | Purpose |
-|------|----------|---------|
-| **Prometheus** | `/metrics` | Collection (requests, latency, error rate) |
-| **Grafana** | Pre-built dashboards | Visual monitoring |
-| **OpenTelemetry** | OTLP Exporter | Distributed tracing → Jaeger/Zipkin |
-| **Structlog** | Structured logging | Contextual logs with `task_id` |
+| Tool | Endpoint/Integration | Purpose |
+|------|---------------------|---------|
+| **Prometheus** | `/metrics` | Metrics collection (requests, latency, error rate) |
+| **Grafana** | Pre-built dashboards | Visual monitoring panels |
+| **OpenTelemetry** | OTLP Exporter | Distributed tracing -> Jaeger/Zipkin |
+| **Structlog** | Structured logging | Contextual logs with task_id |
 
 ### Key Metrics
 
@@ -429,22 +384,40 @@ pachong_circuit_breaker_open              # Circuit breaker count
 
 ---
 
-## 🧪 Development
+## 🧪 Development Guide
+
+### Testing
 
 ```bash
-# Tests
+# All tests
 pytest -v
-pytest --cov=pachong --cov-report=html   # With coverage
-locust -f tests/load/locustfile.py       # Load testing
 
-# Code quality
-ruff format . && ruff check . && mypy pachong/
+# With coverage
+pytest --cov=pachong --cov-report=html
 
-# Workflow
-docker compose up -d postgres redis       # Start deps
-uvicorn pachong.api.app:app --reload      # Dev server
-pytest tests/ -v                          # Run tests
+# Load testing (Locust)
+locust -f tests/load/locustfile.py
 ```
+
+### Code Quality
+
+```bash
+# Formatting
+ruff format .
+
+# Lint
+ruff check .
+
+# Type checking
+mypy pachong/
+```
+
+### Development Workflow
+
+1. Start local dependencies: `docker compose up -d postgres redis`
+2. Start dev server: `uvicorn pachong.api.app:app --reload`
+3. Run tests: `pytest tests/ -v`
+4. Before committing: Formatting + Lint + Type check + Tests pass
 
 ---
 
@@ -463,9 +436,8 @@ pytest tests/ -v                          # Run tests
 
 ## 🗺️ Roadmap
 
-- [x] Zero-dependency demo script (`python demo.py`)
-- [ ] WebSocket real-time task progress push
-- [ ] Browser fingerprint rotation store
+- [ ] WebSocket real-time task progress push (replace polling)
+- [ ] Browser fingerprint rotation store (auto-download fingerprint library)
 - [ ] Adaptive retry strategy (dynamic backoff by error type)
 - [ ] One-click export to Excel/PDF
 - [ ] Slack/DingTalk bot alert integration
@@ -479,10 +451,13 @@ pytest tests/ -v                          # Run tests
 # 1. Fork the project
 # 2. Create your feature branch
 git checkout -b feat/amazing-feature
-# 3. Commit changes
+
+# 3. Commit your changes
 git commit -m "feat: add amazing feature"
-# 4. Push
+
+# 4. Push to the branch
 git push origin feat/amazing-feature
+
 # 5. Open a Pull Request
 ```
 
@@ -490,10 +465,10 @@ git push origin feat/amazing-feature
 
 ## 📄 License
 
-[MIT](LICENSE) © Pachong Team
+[MIT](LICENSE) &copy; Pachong Team
 
 ---
 
 <p align="center">
-  <sub>Built with Rust-level performance ambition in Python · Open an Issue for questions</sub>
+  <sub>Built with Rust-level performance ambition in Python &middot; Open an Issue for questions</sub>
 </p>
