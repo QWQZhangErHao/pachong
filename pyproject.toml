@@ -40,8 +40,8 @@ dependencies = [
 pachong = "pachong.cli.main:app"
 
 [project.urls]
-Homepage = "https://github.com/pachong/pachong"
-Documentation = "https://github.com/pachong/pachong#readme"
+Homepage = "https://github.com/QWQZhangErHao/pachong"
+Documentation = "https://github.com/QWQZhangErHao/pachong#readme"
 
 [project.optional-dependencies]
 dev = [
