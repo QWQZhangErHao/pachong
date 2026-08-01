@@ -44,8 +44,8 @@ async def gui() -> str:
 
 # ── Register routers ─────────────────────────────────────────────────────────
 
-from pachong.api.routes.tasks import router as tasks_router
 from pachong.api.routes.results import router as results_router
+from pachong.api.routes.tasks import router as tasks_router
 
 app.include_router(tasks_router)  # /api/tasks/*
 app.include_router(results_router)  # /api/results/*
@@ -75,7 +75,7 @@ async def health() -> dict[str, str]:
 @app.get("/api/stats")
 async def domain_stats_endpoint() -> dict:
     """Get per-domain processing statistics + adaptive concurrency state."""
-    from pachong.api.routes._processor import get_domain_stats, _get_sem, _domain_cache
+    from pachong.api.routes._processor import _domain_cache, _get_sem, get_domain_stats
     sem = _get_sem()
     return {
         "domains": get_domain_stats(),

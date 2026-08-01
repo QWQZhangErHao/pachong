@@ -18,7 +18,6 @@ from pachong.core.settings import QueueSettings
 from pachong.queue.base import AbstractQueue
 from pachong.queue.schemas import (
     TOPIC_RESULTS,
-    deserialize_result,
     deserialize_task,
     serialize_result,
     serialize_task,

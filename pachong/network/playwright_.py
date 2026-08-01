@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import asyncio
 import time
-from contextlib import asynccontextmanager
 
 import structlog
 
@@ -55,7 +54,7 @@ class PlaywrightEngine:
             await self._playwright.stop()
         logger.info("playwright.pool.stopped")
 
-    async def _launch_browser(self) -> "BrowserInstance":
+    async def _launch_browser(self) -> BrowserInstance:
         browser = await self._browser_type.launch(
             headless=self.settings.playwright_headless,
             args=[
@@ -73,7 +72,7 @@ class PlaywrightEngine:
         )
         return BrowserInstance(browser, self.settings)
 
-    async def acquire(self) -> "BrowserInstance":
+    async def acquire(self) -> BrowserInstance:
         """Get an available browser instance from the pool. Blocks if none free."""
         while True:
             async with self._lock:
@@ -85,7 +84,7 @@ class PlaywrightEngine:
             logger.debug("playwright.pool.waiting")
             await asyncio.sleep(0.1)
 
-    async def release(self, instance: "BrowserInstance") -> None:
+    async def release(self, instance: BrowserInstance) -> None:
         """Return a browser instance to the pool."""
         instance.in_use = False
 

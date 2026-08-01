@@ -12,7 +12,7 @@ import uuid
 
 import structlog
 
-from pachong.core.models import Task, TaskMessage, TaskStatus
+from pachong.core.models import TaskMessage, TaskStatus
 from pachong.core.settings import Settings
 from pachong.queue.kafka import KafkaQueue
 from pachong.queue.schemas import priority_to_topic

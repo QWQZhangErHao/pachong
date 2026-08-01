@@ -11,7 +11,6 @@ discounted rewards to track recent performance more heavily.
 
 from __future__ import annotations
 
-import math
 import time
 from dataclasses import dataclass, field
 

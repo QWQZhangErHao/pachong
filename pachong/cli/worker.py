@@ -15,11 +15,11 @@ import uuid
 
 import structlog
 
-from pachong.core.models import TaskMessage, TaskStatus
+from pachong.core.models import TaskMessage
 from pachong.core.settings import Settings
-from pachong.queue.backpressure import get_domain_token, record_failure, record_success
+from pachong.queue.backpressure import record_failure, record_success
 from pachong.queue.kafka import KafkaQueue
-from pachong.queue.schemas import ALL_TASK_TOPICS, priority_to_topic
+from pachong.queue.schemas import ALL_TASK_TOPICS
 from pachong.scheduler.rate_limiter import get_domain_qps, try_acquire_token, wait_for_token
 
 logger = structlog.get_logger(__name__)

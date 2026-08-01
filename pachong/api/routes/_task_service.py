@@ -8,12 +8,13 @@ Can operate in two modes:
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import structlog
 
-from pachong.core.models import Task, TaskStatus
+from pachong.core.models import TaskStatus
 from pachong.scheduler.priority import score_url
 
 logger = structlog.get_logger(__name__)
@@ -41,13 +42,13 @@ async def create_task(
         priority = score_url(url)
 
     task_id = uuid.uuid4()
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
 
     try:
         # Try PostgreSQL first
+        from pachong.core.settings import Settings
         from pachong.storage.postgres.engine import get_session, init_postgres
         from pachong.storage.postgres.models import TaskModel
-        from pachong.core.settings import Settings
 
         settings = Settings.load()
         await init_postgres(settings)
@@ -124,7 +125,7 @@ async def _process_in_background(task_id: str, url: str, domain: str, deep: bool
 
 
 _batch_registry: dict[str, dict] = {}
-_BATCH_FILE: "Path | None" = None
+_BATCH_FILE: Path | None = None
 
 
 async def _batch_process(tasks: list[dict], deep: bool = False) -> None:
@@ -183,10 +184,11 @@ def clear_batch_state():
 async def get_task(task_id: str) -> dict | None:
     """Get task status and result."""
     try:
-        from pachong.storage.postgres.engine import get_session, init_postgres
-        from pachong.storage.postgres.models import TaskModel, ResultModel
-        from pachong.core.settings import Settings
         from sqlalchemy import select
+
+        from pachong.core.settings import Settings
+        from pachong.storage.postgres.engine import get_session, init_postgres
+        from pachong.storage.postgres.models import TaskModel
 
         settings = Settings.load()
         await init_postgres(settings)
@@ -229,10 +231,11 @@ async def list_tasks(
 ) -> dict:
     """List tasks with optional filtering."""
     try:
+        from sqlalchemy import func, select
+
+        from pachong.core.settings import Settings
         from pachong.storage.postgres.engine import get_session, init_postgres
         from pachong.storage.postgres.models import TaskModel
-        from pachong.core.settings import Settings
-        from sqlalchemy import select, func
 
         settings = Settings.load()
         await init_postgres(settings)

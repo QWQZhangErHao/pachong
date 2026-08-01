@@ -9,13 +9,10 @@ When danger index rises, PID reduces the Redis token bucket rate.
 
 from __future__ import annotations
 
-import time
-
 import structlog
 
 from pachong.resilience import metrics
 from pachong.resilience.collector import get_domain_stats
-from pachong.storage.postgres.models import DomainBanState
 from pachong.storage.redis_.client import get_redis
 
 logger = structlog.get_logger(__name__)
@@ -38,7 +35,6 @@ async def compute_ban_score(domain: str) -> float:
     Smoothing: exponential moving average over previous score.
     """
     stats = get_domain_stats(domain)
-    total = max(stats["total"], 1)
 
     block_rate = stats["block_rate"]
     captcha_rate = stats["captcha_rate"]

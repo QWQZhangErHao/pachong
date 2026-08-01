@@ -16,12 +16,6 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 import structlog
-from tenacity import (
-    AsyncRetrying,
-    retry_if_exception_type,
-    stop_after_attempt,
-    wait_exponential_jitter,
-)
 
 from pachong.core.errors import NetworkError, RateLimitError
 from pachong.core.models import BrowserIdentity
@@ -39,7 +33,7 @@ class MiddlewarePipeline:
     def __init__(self) -> None:
         self._middlewares: list[MiddlewareFunc] = []
 
-    def add(self, middleware: MiddlewareFunc) -> "MiddlewarePipeline":
+    def add(self, middleware: MiddlewareFunc) -> MiddlewarePipeline:
         self._middlewares.append(middleware)
         return self
 
@@ -51,7 +45,7 @@ class MiddlewarePipeline:
         return wrapped
 
     @classmethod
-    def default(cls, identity: BrowserIdentity | None = None, max_retries: int = 3) -> "MiddlewarePipeline":
+    def default(cls, identity: BrowserIdentity | None = None, max_retries: int = 3) -> MiddlewarePipeline:
         """Create a pipeline with all standard middleware."""
         pipeline = cls()
         pipeline.add(retry_middleware(max_retries))

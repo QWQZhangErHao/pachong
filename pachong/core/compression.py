@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import brotli
 import gzip
-import zlib
 from typing import Literal
 
+import brotli
 
 CompressionAlgo = Literal["brotli", "gzip"]
 

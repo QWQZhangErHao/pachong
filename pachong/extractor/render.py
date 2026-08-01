@@ -10,7 +10,7 @@ Supports:
 
 from __future__ import annotations
 
-import time
+import json
 from urllib.parse import urljoin
 
 import structlog

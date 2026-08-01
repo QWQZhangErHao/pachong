@@ -8,12 +8,10 @@ load, and serverless functions absorb traffic spikes (Black Friday, etc.).
 from __future__ import annotations
 
 import asyncio
-import time
 
 import structlog
 
-from pachong.core.settings import ServerlessSettings, Settings
-from pachong.queue.schemas import ALL_TASK_TOPICS
+from pachong.core.settings import ServerlessSettings
 from pachong.serverless.local import LocalServerlessRunner
 
 logger = structlog.get_logger(__name__)

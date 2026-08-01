@@ -7,12 +7,10 @@ from __future__ import annotations
 
 import asyncio
 
-import pytest
-
+from pachong.core.settings import Settings
 from pachong.extractor.css_xpath import CssXPathExtractor
 from pachong.extractor.pipeline import ExtractionPipeline
 from pachong.extractor.schema_org import SchemaOrgExtractor
-from pachong.core.settings import Settings
 
 
 class TestExtractionPipeline:
@@ -92,14 +90,13 @@ class TestSettings:
 
 class TestQueueSchemas:
     def test_priority_to_topic(self):
-        from pachong.queue.schemas import priority_to_topic
-        from pachong.queue.schemas import TOPIC_TASKS_HIGH, TOPIC_TASKS_NORMAL, TOPIC_TASKS_LOW
+        from pachong.queue.schemas import TOPIC_TASKS_HIGH, TOPIC_TASKS_LOW, TOPIC_TASKS_NORMAL, priority_to_topic
         assert priority_to_topic(90) == TOPIC_TASKS_HIGH
         assert priority_to_topic(50) == TOPIC_TASKS_NORMAL
         assert priority_to_topic(10) == TOPIC_TASKS_LOW
 
     def test_message_serialization_roundtrip(self, task_message):
-        from pachong.queue.schemas import serialize_task, deserialize_task
+        from pachong.queue.schemas import deserialize_task, serialize_task
         serialized = serialize_task(task_message)
         deserialized = deserialize_task(serialized)
         assert deserialized.task_id == task_message.task_id

@@ -10,7 +10,6 @@ from __future__ import annotations
 import asyncio
 import json
 import shutil
-import subprocess
 import time
 
 import structlog
@@ -134,7 +133,7 @@ class LightpandaEngine:
                 try:
                     process.terminate()
                     await asyncio.wait_for(process.wait(), timeout=3)
-                except (ProcessLookupError, asyncio.TimeoutError):
+                except (TimeoutError, ProcessLookupError):
                     process.kill()
                     await process.wait()
 
@@ -169,32 +168,31 @@ class LightpandaEngine:
         """Navigate using CDP WebSocket and return rendered HTML."""
         import aiohttp
 
-        async with aiohttp.ClientSession() as session:
-            async with session.ws_connect(ws_url) as ws:
-                # Enable Page domain
-                await ws.send_json({"id": 1, "method": "Page.enable"})
+        async with aiohttp.ClientSession() as session, session.ws_connect(ws_url) as ws:
+            # Enable Page domain
+            await ws.send_json({"id": 1, "method": "Page.enable"})
 
-                # Navigate
-                await ws.send_json({
-                    "id": 2,
-                    "method": "Page.navigate",
-                    "params": {"url": url},
-                })
+            # Navigate
+            await ws.send_json({
+                "id": 2,
+                "method": "Page.navigate",
+                "params": {"url": url},
+            })
 
-                # Wait for load event
-                content = ""
-                deadline = time.monotonic() + timeout_ms / 1000
-                while time.monotonic() < deadline:
-                    msg = await asyncio.wait_for(ws.receive_json(), timeout=5.0)
-                    if msg.get("method") == "Page.loadEventFired":
-                        # Get document content
-                        await ws.send_json({
-                            "id": 3,
-                            "method": "Runtime.evaluate",
-                            "params": {"expression": "document.documentElement.outerHTML"},
-                        })
-                        result = await ws.receive_json()
-                        content = result.get("result", {}).get("result", {}).get("value", "")
-                        break
+            # Wait for load event
+            content = ""
+            deadline = time.monotonic() + timeout_ms / 1000
+            while time.monotonic() < deadline:
+                msg = await asyncio.wait_for(ws.receive_json(), timeout=5.0)
+                if msg.get("method") == "Page.loadEventFired":
+                    # Get document content
+                    await ws.send_json({
+                        "id": 3,
+                        "method": "Runtime.evaluate",
+                        "params": {"expression": "document.documentElement.outerHTML"},
+                    })
+                    result = await ws.receive_json()
+                    content = result.get("result", {}).get("result", {}).get("value", "")
+                    break
 
-                return content
+            return content

@@ -6,7 +6,7 @@ import asyncio
 from contextlib import asynccontextmanager
 
 import structlog
-from playwright.async_api import Browser, BrowserContext, Page, async_playwright
+from playwright.async_api import Browser, async_playwright
 
 logger = structlog.get_logger(__name__)
 

@@ -35,7 +35,7 @@ class TaskModel(Base):
     scheduled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    results: Mapped[list["ResultModel"]] = relationship(back_populates="task", cascade="all, delete-orphan")
+    results: Mapped[list[ResultModel]] = relationship(back_populates="task", cascade="all, delete-orphan")
 
 
 class ResultModel(Base):

@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import ssl
 import time
-from types import TracebackType
 
 import structlog
 from aiohttp import (

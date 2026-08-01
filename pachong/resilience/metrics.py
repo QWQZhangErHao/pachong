@@ -8,8 +8,8 @@ Exposed at /metrics for Prometheus scraping.
 
 from __future__ import annotations
 
-from prometheus_client import Counter, Gauge, Histogram, Info, generate_latest
 from prometheus_client import REGISTRY as PROM_REGISTRY
+from prometheus_client import Counter, Gauge, Histogram, Info, generate_latest
 
 # ── Task metrics ─────────────────────────────────────────────────────────────
 

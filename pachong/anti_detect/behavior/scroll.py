@@ -7,7 +7,6 @@ while listing pages get rapid skimming.
 
 from __future__ import annotations
 
-import math
 import random
 
 

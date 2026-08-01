@@ -6,9 +6,8 @@ import hashlib
 import json
 import re
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 import structlog
 
@@ -103,7 +102,7 @@ async def cache_rules_result(domain: str, html: str, rules: list[dict], url: str
     try:
         fc: dict = json.loads(CACHE_FILE.read_text(encoding="utf-8")) if CACHE_FILE.exists() else {}
         fc[key] = {"rules": rules, "expire_at": time.time() + ttl,
-                   "cached_at": datetime.now(timezone.utc).isoformat()}
+                   "cached_at": datetime.now(UTC).isoformat()}
         fc = {k: v for k, v in fc.items() if v.get("expire_at", 0) > time.time()}
         CACHE_FILE.write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8")
     except Exception:

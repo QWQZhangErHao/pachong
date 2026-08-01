@@ -6,7 +6,7 @@ Geo-Bound generator to create coherent, realistic browser identities.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass

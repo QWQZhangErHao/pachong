@@ -43,7 +43,8 @@ class ConnectionPool:
             if domain in self._warmed_domains:  # Double-check inside lock
                 return
 
-            connector = self.factory.build_connector() if self.factory._connector is None else self.factory._connector
+            # Ensure connector is built (warm-up side effect)
+            self.factory.build_connector() if self.factory._connector is None else None
 
             logger.debug("pool.warming", domain=domain, count=self._warm_count)
             try:

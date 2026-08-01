@@ -6,12 +6,9 @@ import uuid
 
 from pachong.core.models import (
     BrowserIdentity,
-    ProductRecord,
     ProxyRecord,
-    ScrapingResult,
     ServerlessPayload,
     Task,
-    TaskMessage,
     TaskStatus,
 )
 

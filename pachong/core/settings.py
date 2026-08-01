@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Literal
 
 import yaml
-from pydantic import BaseModel, Field, PostgresDsn, RedisDsn
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -174,14 +174,14 @@ class Settings(BaseSettings):
         import json
         return json.loads(self.model_dump_json())
 
-    def merge_override(self, override: dict) -> "Settings":
+    def merge_override(self, override: dict) -> Settings:
         """Deep-merge an override dict and return new Settings instance."""
         base = self.to_dict()
         _deep_merge(base, override)
         return self.__class__(**base)
 
     @classmethod
-    def load(cls, env: str | None = None) -> "Settings":
+    def load(cls, env: str | None = None) -> Settings:
         """Load settings cascade: default.yaml → {env}.yaml → env vars."""
         config_dir = Path(__file__).parent.parent.parent / "config"
 

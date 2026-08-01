@@ -9,8 +9,6 @@ Real humans have distinct typing patterns:
 from __future__ import annotations
 
 import random
-import time
-
 
 # Average typing speed: ~200ms per keystroke for average typist
 # Common letter pairs (bigrams) have shorter inter-key delays
@@ -113,4 +111,4 @@ def _get_adjacent_key(char: str) -> str | None:
         "u": "i", "v": "b", "w": "e", "x": "c", "y": "t",
         "z": "x",
     }
-    return adjacent.get(char.lower(), None)
+    return adjacent.get(char.lower())

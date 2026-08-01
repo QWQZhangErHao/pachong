@@ -61,7 +61,7 @@ async def check_proxy_health(proxy_id: str) -> dict:
                             "endpoint": endpoint,
                         }
 
-        except Exception as e:
+        except Exception:
             continue
 
     # All endpoints failed

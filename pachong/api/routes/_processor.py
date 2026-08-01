@@ -12,13 +12,10 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
 import re
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
-from urllib.parse import urlparse
 
 import structlog
 
@@ -185,7 +182,7 @@ async def _process_one(task_id: str, url: str, domain: str, deep: bool):
     try:
         html, engine, bot_hint = await asyncio.wait_for(
             _smart_fetch(url, domain, deep), timeout=8.0)
-    except asyncio.TimeoutError:
+    except TimeoutError:
         html = _build_smart_demo_html(url, domain)
         engine, bot_hint = "demo", "timeout"
 
@@ -227,7 +224,7 @@ async def _process_one(task_id: str, url: str, domain: str, deep: bool):
         "extraction_time_ms": result.get("time_ms", 0),
         "total_time_ms": elapsed, "content_length": len(html),
         "engine": engine, "bot_hint": bot_hint,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     })
     logger.debug("proc.done", id=task_id[:8], fields=len(merged),
                  engine=engine, ms=round(elapsed), hint=bot_hint or "")
@@ -240,7 +237,7 @@ async def _smart_fetch(url: str, domain: str, deep: bool) -> tuple[str, str, str
     is_article = _is_article_url(url)
 
     # Use new DNS cache module with TTL + prewarming
-    from pachong.network.dns_cache import is_reachable, check_domain_reachable
+    from pachong.network.dns_cache import check_domain_reachable, is_reachable
     cached = is_reachable(domain)
     if cached is False:
         return _build_smart_demo_html(url, domain), "demo", None
@@ -302,7 +299,7 @@ async def _aiohttp_smart(url: str) -> tuple[str, int, dict, str | None]:
                 html = await resp.text()
                 resp_headers = dict(resp.headers)
                 return html, resp.status, resp_headers, None
-    except asyncio.TimeoutError:
+    except TimeoutError:
         return "", 0, {}, "timeout"
     except aiohttp.ClientConnectorError as e:
         err_str = str(e).lower()

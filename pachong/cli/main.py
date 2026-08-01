@@ -75,14 +75,14 @@ async def _run_scheduler() -> None:
     settings = Settings.load()
     typer.echo(f"  Environment: {settings.env}")
     typer.echo(f"  Kafka brokers: {settings.queue.kafka_brokers}")
-    typer.echo(f"  Batch size: 200, Poll interval: 500ms")
+    typer.echo("  Batch size: 200, Poll interval: 500ms")
     engine = SchedulerEngine(settings)
     await engine.run()
 
 
 async def _run_worker() -> None:
-    from pachong.core.settings import Settings
     from pachong.cli.worker import WorkerEngine
+    from pachong.core.settings import Settings
 
     settings = Settings.load()
     typer.echo(f"  Environment: {settings.env}")
@@ -116,7 +116,7 @@ async def _run_submit(urls: list[str], file: str | None, priority: int, engine: 
         result = await create_task(url=u, priority=priority, engine_hint=engine)
         flag = "+" if result["status"] == "created" else "-"
         typer.echo(f"  [{flag}] {result['task_id'][:8]}...  pri={result['priority']:3d}  {u}")
-    typer.echo(f"\nDone.")
+    typer.echo("\nDone.")
 
 
 async def _run_status(task_id: str | None, limit: int) -> None:

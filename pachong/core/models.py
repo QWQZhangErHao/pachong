@@ -10,7 +10,6 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field, HttpUrl, model_validator
 from pydantic.types import UUID4
 
-
 # ── Enums ────────────────────────────────────────────────────────────────────
 
 class TaskStatus(str, Enum):
@@ -92,7 +91,7 @@ class Task(BaseModel):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     @model_validator(mode="after")
-    def set_domain(self) -> "Task":
+    def set_domain(self) -> Task:
         if not self.domain and self.url:
             self.domain = self.url.host or ""
         return self

@@ -8,11 +8,10 @@ Bandit algorithms (Phase 4 bandit module) select the best proxy for each request
 from __future__ import annotations
 
 import uuid
-from typing import Literal
 
 import structlog
 
-from pachong.core.models import ProxyRecord, ProxyProtocol, ProxyStatus
+from pachong.core.models import ProxyProtocol, ProxyRecord, ProxyStatus
 from pachong.storage.redis_.client import get_redis
 
 logger = structlog.get_logger(__name__)

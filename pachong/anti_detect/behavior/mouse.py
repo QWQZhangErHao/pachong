@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import math
 import random
-import time
 
 
 def _bezier(p0, p1, p2, p3, steps=30):

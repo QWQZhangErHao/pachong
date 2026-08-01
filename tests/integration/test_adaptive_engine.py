@@ -8,12 +8,11 @@ from pachong.core.settings import Settings
 from pachong.network.adaptive import AdaptiveEngineSelector
 from pachong.network.middleware import (
     MiddlewarePipeline,
-    cookie_middleware,
     header_middleware,
     retry_middleware,
     timing_middleware,
 )
-from pachong.network.response import FetchResponse, TimingInfo
+from pachong.network.response import FetchResponse
 
 
 class TestAdaptiveEngine:

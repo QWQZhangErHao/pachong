@@ -19,11 +19,11 @@ if TYPE_CHECKING:
 
 
 _session: aioboto3.Session | None = None
-_client: "S3Client | None" = None
-_settings: "S3Settings | None" = None
+_client: S3Client | None = None
+_settings: S3Settings | None = None
 
 
-def init_s3(settings: "S3Settings") -> "S3Client":
+def init_s3(settings: S3Settings) -> S3Client:
     """Initialize aioboto3 session. Returns the client."""
     global _session, _client, _settings
     _settings = settings
@@ -41,7 +41,7 @@ def init_s3(settings: "S3Settings") -> "S3Client":
     return _client
 
 
-def get_s3() -> "S3Client":
+def get_s3() -> S3Client:
     """Get the S3 client handle."""
     if _client is None:
         raise RuntimeError("S3 not initialized. Call init_s3() first.")

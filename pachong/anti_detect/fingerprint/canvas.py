@@ -13,7 +13,6 @@ hashes, not pixel data.
 from __future__ import annotations
 
 import hashlib
-import uuid
 
 from pachong.core.models import BrowserIdentity
 

@@ -8,15 +8,13 @@ Playwright or Puppeteer to simulate realistic user behavior.
 from __future__ import annotations
 
 import random
-import time
 
 from pachong.anti_detect.behavior.mouse import (
     generate_click,
     generate_hover_trajectory,
-    generate_random_delay,
     generate_trajectory,
 )
-from pachong.anti_detect.behavior.scroll import generate_scroll_sequence, generate_wheel_events
+from pachong.anti_detect.behavior.scroll import generate_scroll_sequence
 from pachong.anti_detect.behavior.typing import generate_typing_sequence
 
 

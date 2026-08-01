@@ -14,7 +14,6 @@ determined that domain X needs Playwright, we skip HTTP for N minutes.
 
 from __future__ import annotations
 
-import time
 from typing import Protocol
 
 import structlog

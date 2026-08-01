@@ -12,7 +12,6 @@ import time
 
 import structlog
 
-from pachong.core.settings import ResilienceSettings
 from pachong.storage.redis_.client import get_redis
 
 logger = structlog.get_logger(__name__)

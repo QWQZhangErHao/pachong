@@ -10,8 +10,6 @@ Generates the JavaScript-level fingerprint that sites read via:
 
 from __future__ import annotations
 
-import random
-
 from pachong.core.models import BrowserIdentity
 
 

@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import asyncio
 import time
-from pathlib import Path
 
 import structlog
 
@@ -112,7 +111,6 @@ class NodriverEngine:
 
             # Extract page content
             content = await tab.get_content()
-            title = await tab.get_title()
 
             # Extract cookies for reuse by lighter engines
             cookies = await browser.cookies.get_all()

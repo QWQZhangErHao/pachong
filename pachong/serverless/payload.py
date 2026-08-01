@@ -17,7 +17,6 @@ Payload schema (maximum ~500 bytes):
 
 from __future__ import annotations
 
-import json
 import uuid
 
 from pachong.core.models import ExtractionRule, ServerlessPayload
@@ -74,19 +73,19 @@ class ServerlessPayloadBuilder:
         self._screenshot_key: str | None = None
         self._rules: list[ExtractionRule] = []
 
-    def with_task(self, task_id: uuid.UUID) -> "ServerlessPayloadBuilder":
+    def with_task(self, task_id: uuid.UUID) -> ServerlessPayloadBuilder:
         self._task_id = task_id
         return self
 
-    def with_html(self, s3_key: str) -> "ServerlessPayloadBuilder":
+    def with_html(self, s3_key: str) -> ServerlessPayloadBuilder:
         self._html_key = s3_key
         return self
 
-    def with_screenshot(self, s3_key: str) -> "ServerlessPayloadBuilder":
+    def with_screenshot(self, s3_key: str) -> ServerlessPayloadBuilder:
         self._screenshot_key = s3_key
         return self
 
-    def with_rules(self, rules: list[ExtractionRule]) -> "ServerlessPayloadBuilder":
+    def with_rules(self, rules: list[ExtractionRule]) -> ServerlessPayloadBuilder:
         self._rules = rules
         return self
 

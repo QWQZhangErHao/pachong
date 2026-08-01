@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from pachong.core.compression import (
     compress,
-    compression_ratio,
     compress_html,
-    decompress,
+    compression_ratio,
     decompress_html,
 )
 

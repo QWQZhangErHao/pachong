@@ -16,7 +16,7 @@ from __future__ import annotations
 import math
 import random
 
-from pachong.anti_detect.bandit.environment import ArmState, BanditEnvironment
+from pachong.anti_detect.bandit.environment import BanditEnvironment
 
 
 def thompson_sampling(env: BanditEnvironment) -> str | None:

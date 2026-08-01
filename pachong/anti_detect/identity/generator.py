@@ -18,6 +18,7 @@ import structlog
 from pachong.anti_detect.identity.profile import (
     PLATFORM_BY_CONTINENT,
     TIMEZONE_LOCALE_MAP,
+    WINDOWS_PROFILE,
     GeoLocationInfo,
     PlatformProfile,
 )
@@ -169,8 +170,9 @@ class IdentityGenerator:
         """Generate an identity with auto-corrected consistency validation."""
         identity = self.generate(timezone)
         try:
-            from pachong.anti_detect.fingerprint.consistency import validate_and_correct
             import asyncio
+
+            from pachong.anti_detect.fingerprint.consistency import validate_and_correct
             corrected, report = asyncio.run(validate_and_correct(identity))
             return corrected
         except Exception:

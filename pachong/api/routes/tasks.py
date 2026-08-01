@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import uuid
-from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
@@ -56,7 +54,7 @@ class TaskListResponse(BaseModel):
 async def submit_task(req: SubmitTaskRequest, bg: BackgroundTasks,
                       deep: bool = Query(False, description="Enable Playwright deep rendering")) -> SubmitTaskResponse:
     """Submit a single URL. Use deep=true for JS-heavy sites (slower but more accurate)."""
-    from pachong.api.routes._task_service import create_task, _process_in_background
+    from pachong.api.routes._task_service import _process_in_background, create_task
 
     result = await create_task(url=str(req.url), priority=req.priority,
         engine_hint=req.engine_hint, max_retries=req.max_retries,
@@ -71,7 +69,7 @@ async def submit_task(req: SubmitTaskRequest, bg: BackgroundTasks,
 async def submit_tasks_batch(req: list[SubmitTaskRequest], bg: BackgroundTasks,
                              deep: bool = Query(False)) -> dict:
     """Submit multiple URLs. batched processing with max 5 concurrent, domain-cached."""
-    from pachong.api.routes._task_service import create_task, _batch_process
+    from pachong.api.routes._task_service import _batch_process, create_task
 
     tasks_created = []
     for item in req:

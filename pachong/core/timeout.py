@@ -24,7 +24,7 @@ async def with_timeout(
     """Execute coro with hard deadline. Optionally returns fallback() on timeout."""
     try:
         return await asyncio.wait_for(coro, timeout=timeout)
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.warning("timeout.hit", label=label, timeout=timeout)
         if fallback:
             return fallback()

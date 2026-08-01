@@ -191,10 +191,7 @@ def _get_parameters(gpu: str, platform: str) -> dict[str, int]:
     if gpu == "nvidia":
         base[3379] = 32768
         base[35661] = 192
-    elif gpu == "intel":
-        base[3379] = 16384
-        base[35661] = 96
-    elif gpu == "apple":
+    elif gpu == "intel" or gpu == "apple":
         base[3379] = 16384
         base[35661] = 96
     elif gpu == "amd":

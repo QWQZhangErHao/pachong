@@ -2,20 +2,16 @@
 
 from __future__ import annotations
 
-import uuid
-from collections.abc import AsyncGenerator
-
 import pytest
 
 from pachong.core.models import (
     BrowserIdentity,
-    ExtractionRule,
     ProxyRecord,
     Task,
     TaskMessage,
 )
 from pachong.core.settings import Settings
-from pachong.network.response import FetchResponse, TimingInfo
+from pachong.network.response import FetchResponse
 
 
 @pytest.fixture

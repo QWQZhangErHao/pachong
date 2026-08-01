@@ -15,15 +15,15 @@ from __future__ import annotations
 
 import asyncio
 import time
-from typing import Any
 
 import structlog
 
+from pachong.core.models import ExtractionRule
 from pachong.core.settings import Settings
-from pachong.extractor.base import ExtractedField, ExtractionResult
+from pachong.extractor.base import ExtractionResult
 from pachong.extractor.css_xpath import CssXPathExtractor
 from pachong.extractor.llm_healer import LLMHealer
-from pachong.extractor.rule_manager import get_rules, has_rules
+from pachong.extractor.rule_manager import get_rules
 from pachong.extractor.schema_org import SchemaOrgExtractor
 
 logger = structlog.get_logger(__name__)
@@ -116,7 +116,7 @@ class ExtractionPipeline:
                 path_pattern = self._infer_path_pattern(path)
 
                 # Check LLM cache first
-                from pachong.extractor.llm_cache import get_cached_rules, cache_rules_result
+                from pachong.extractor.llm_cache import cache_rules_result, get_cached_rules
                 cached = await get_cached_rules(domain, html)
                 if cached:
                     healed_rules = [self._dict_to_rule(r) for r in cached]
@@ -177,8 +177,7 @@ class ExtractionPipeline:
             return ExtractionResult(url=url)
 
     @staticmethod
-    def _dict_to_rule(d: dict) -> "ExtractionRule":
-        from pachong.core.models import ExtractionRule
+    def _dict_to_rule(d: dict) -> ExtractionRule:
         return ExtractionRule(
             domain="", path_pattern="",
             field_name=d["field_name"],

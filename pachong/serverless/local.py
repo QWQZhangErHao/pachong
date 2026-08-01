@@ -16,7 +16,6 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-import subprocess
 import sys
 import tempfile
 
@@ -157,7 +156,7 @@ class LocalServerlessRunner(AbstractServerlessRunner):
                     except OSError:
                         pass
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 logger.error("serverless.local.timeout", task_id=str(payload.task_id))
                 return False
             except Exception:

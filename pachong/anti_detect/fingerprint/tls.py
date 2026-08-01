@@ -16,7 +16,6 @@ import hashlib
 
 from pachong.core.models import BrowserIdentity
 
-
 # Chrome 130 cipher suites in preference order (realistic)
 CHROME_CIPHERS = [
     0x1301,  # TLS_AES_128_GCM_SHA256

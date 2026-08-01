@@ -93,7 +93,7 @@ class PerDomainSessionPool:
                 body = await resp.text()
                 resp_headers = dict(resp.headers)
                 return body, resp.status, resp_headers
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return "", 0, {"_error": "timeout"}
         except aiohttp.ClientError as e:
             return "", 0, {"_error": str(e)}
