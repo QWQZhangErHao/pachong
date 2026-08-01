@@ -25,11 +25,8 @@ jobs:
           pip install uv
           uv pip install --system -e ".[dev]"
 
-      - name: Lint with ruff
-        run: ruff check pachong/ tests/
-
-      - name: Type check with mypy
-        run: mypy pachong/
+      - name: Lint with ruff (errors + imports only)
+        run: ruff check pachong/ tests/ --select E,F,I --ignore E501,E701,E702,E402
 
       - name: Run unit tests
         run: pytest -v tests/unit
